@@ -31,9 +31,10 @@ public class Server {
             e.printStackTrace();
             System.exit(1);
         }
+        Socket clientSocket;
         while (true) {
             try {
-                Socket clientSocket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
                 new Thread(new Protocol(clientSocket)).start();
             } catch (IOException e) {
                 e.printStackTrace();

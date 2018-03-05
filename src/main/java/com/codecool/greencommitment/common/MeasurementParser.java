@@ -15,13 +15,16 @@ public class MeasurementParser {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             document = dBuilder.newDocument();
             return document;
-        } catch (Exception e) {}
+        } catch (Exception ignored) {
+        }
         return null;
     }
 
     public Document createDocument(int id, long time, double value, String type) {
         Document document = initDocument();
-        if (document == null) { System.exit(1); }
+        if (document == null) {
+            System.exit(1);
+        }
 
         // Measurement / root
         Element root = document.createElement("measurement");
@@ -43,5 +46,9 @@ public class MeasurementParser {
         document.appendChild(root);
 
         return document;
+    }
+
+    public void saveToFile() {
+
     }
 }
