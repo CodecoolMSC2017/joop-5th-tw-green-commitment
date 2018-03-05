@@ -58,7 +58,7 @@ public class Client {
     }
 
     private String getId(){
-
+        return "";
     }
 
     public void sendData(Sensor sensor) throws IOException {
