@@ -12,12 +12,13 @@ public class Client {
 
 
     // Constructor(s)
-    public Client(String host, int port) throws IOException{
+    public Client(int port, String host) throws IOException{
         socket = new Socket(host, port);
         sensors = new ArrayList<>();
+    }
+    public void start(){
         handleClientId();
     }
-
 
     // Method(s)
     private void handleClientId(){
