@@ -60,6 +60,7 @@ public class Server {
                 inputStream = new ObjectInputStream(clientSocket.getInputStream());
                 outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             } catch (IOException e) {
+                System.out.println("Could not open streams");
                 e.printStackTrace();
                 return;
             }
@@ -88,6 +89,7 @@ public class Server {
         private void identify() {
             try {
                 String in = (String) inputStream.readObject();
+                System.out.println("Id sent: " + in);
                 int id = Integer.parseInt(in);
                 if (data.containsKey(id)) {
                     outputStream.writeObject("ok");

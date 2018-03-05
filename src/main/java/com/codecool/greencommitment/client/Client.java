@@ -10,13 +10,26 @@ public class Client {
     private Socket socket;
     private List<Sensor> sensors;
 
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+
 
     // Constructor(s)
-    public Client(int port, String host) throws IOException{
+    public Client(int port, String host) throws IOException {
         socket = new Socket(host, port);
         sensors = new ArrayList<>();
     }
-    public void start(){
+
+    public void start() {
+        try (
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+        ) {
+            outputStream = out;
+            inputStream = in;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         handleClientId();
         try {
             sendData(new TemperatureSensor());
@@ -26,10 +39,10 @@ public class Client {
     }
 
     // Method(s)
-    private void handleClientId(){
+    private void handleClientId() {
         String pathToId = "src/main/resources/clientid";
         File idFile = new File(pathToId);
-        if (idFile.exists()){
+        if (idFile.exists()) {
             readId(pathToId);
             sendId();
         } else {
@@ -37,17 +50,17 @@ public class Client {
         }
     }
 
-    private void readId(String pathToId){
+    private void readId(String pathToId) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(pathToId));
             this.clientId = br.readLine();
             br.close();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void writeId(String pathToId, String id){
+    private void writeId(String pathToId, String id) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(pathToId));
             bw.write(id);
@@ -58,43 +71,28 @@ public class Client {
         }
     }
 
-    private void sendId(){
+    private void sendId() {
         try {
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            out.writeObject(clientId);
-            out.close();
-        } catch (IOException e){
+            outputStream.writeObject(clientId);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private String getId(){
+    private String getId() {
         String clientId = "0";
         try {
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-
-            out.writeObject(clientId);
-            clientId = (String) in.readObject();
-
-            out.close();
-        } catch (IOException | ClassNotFoundException e){
+            outputStream.writeObject(clientId);
+            clientId = (String) inputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return clientId;
     }
 
-    public void sendData(Sensor sensor) throws IOException {
-
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-
-            out.writeObject("measurement");
-            out.writeObject(sensor.readData());
-
-            out.close();
-        } finally {
-            //socket.close();
-        }
+    private void sendData(Sensor sensor) throws IOException {
+        outputStream.writeObject("measurement");
+        outputStream.writeObject(sensor.readData());
     }
 }
+
