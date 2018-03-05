@@ -33,14 +33,17 @@ public class MeasurementParser {
         // Time
         Element timeE = document.createElement("time");
         timeE.setTextContent(String.valueOf(time));
+        root.appendChild(timeE);
 
         // Value
         Element valueE = document.createElement("value");
         valueE.setTextContent(String.valueOf(value));
+        root.appendChild(valueE);
 
         // Type
         Element typeE = document.createElement("type");
         typeE.setTextContent(type);
+        root.appendChild(typeE);
 
         // Add it to the document
         document.appendChild(root);
