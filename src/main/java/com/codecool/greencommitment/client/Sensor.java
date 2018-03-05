@@ -2,8 +2,8 @@ package com.codecool.greencommitment.client;
 
 import org.w3c.dom.Document;
 
-public abstract class Sensor implements Runnable {
-    public abstract Document readData();
+public abstract class Sensor{
 
-    public abstract void sendData(Document data);
+    // Method(s)
+    public abstract Document readData();
 }
