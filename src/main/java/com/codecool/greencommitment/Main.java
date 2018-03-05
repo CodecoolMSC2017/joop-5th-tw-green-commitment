@@ -8,9 +8,8 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Usage: Main <port> <IP>");
         if (args.length == 0) {
-            System.out.println("That's no good mate! Give me some ports and addresses!");
+            System.out.println("That's no good mate! Use it like this: Main <port> <IP>");
         }
         else if (args.length == 1) {
             new Server(Integer.valueOf(args[0])).start();
