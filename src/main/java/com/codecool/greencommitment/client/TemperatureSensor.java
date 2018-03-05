@@ -1,5 +1,6 @@
 package com.codecool.greencommitment.client;
 
+import com.codecool.greencommitment.common.MeasurementParser;
 import org.w3c.dom.Document;
 
 
@@ -12,9 +13,13 @@ public class TemperatureSensor extends Sensor {
 
     @Override
     public Document readData() {
+        Document doc;
+        MeasurementParser parser = new MeasurementParser();
         double temperature = generateRandomNumber(18, 25);
         long currentTime = currentTimeMillis();
 
-        return null;
+        doc = parser.createDocument(id, currentTime, temperature, type);
+
+        return doc;
     }
 }
