@@ -5,24 +5,23 @@ import org.w3c.dom.Document;
 
 import java.text.DecimalFormat;
 
+class AirPressureSensor extends Sensor {
 
-class TemperatureSensor extends Sensor {
-
-    TemperatureSensor(){
-        this.id = 453;
-        this.type = "celsius";
+    AirPressureSensor(){
+        this.id = 1587;
+        this.type = "kPa";
     }
 
     @Override
     public Document readData() {
         Document doc;
         MeasurementParser parser = new MeasurementParser();
-        DecimalFormat df = new DecimalFormat("#.#");
+        DecimalFormat df = new DecimalFormat("#.###");
 
-        double temperature = Double.valueOf(df.format(generateRandomNumber(18, 25)));
+        double airPressure = Double.valueOf(df.format(generateRandomNumber(99, 103)));
         long currentTime = currentTimeMillis();
 
-        doc = parser.createDocument(id, currentTime, temperature, type);
+        doc = parser.createDocument(id, currentTime, airPressure, type);
 
         return doc;
     }
