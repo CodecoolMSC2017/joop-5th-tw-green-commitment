@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Client {
     private String clientId;
@@ -33,6 +34,7 @@ public class Client {
         handleClientId();
         try {
             sendData(new TemperatureSensor());
+            new Scanner(System.in).nextLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
