@@ -5,16 +5,18 @@ import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class Server {
 
     private int portNumber;
-    private HashMap<Integer, List<Element>> data;
+    private HashMap<Integer, List<Element>> data = new HashMap<>();
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -25,15 +27,15 @@ public class Server {
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
+            System.out.println("Error creating server socket");
             e.printStackTrace();
+            System.exit(1);
         }
-        ObjectInputStream inputStream;
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                inputStream = new ObjectInputStream(clientSocket.getInputStream());
-                new Thread(new Protocol((Document) inputStream.readObject())).start();
-            } catch (IOException | ClassNotFoundException e) {
+                new Thread(new Protocol(clientSocket)).start();
+            } catch (IOException e) {
                 e.printStackTrace();
                 System.exit(0);
             }
@@ -42,18 +44,83 @@ public class Server {
 
     class Protocol implements Runnable {
 
-        private Document document;
+        private Socket clientSocket;
+        private ObjectInputStream inputStream;
+        private ObjectOutputStream outputStream;
+        private int id;
 
-        Protocol(Document document) {
-            this.document = document;
+        Protocol(Socket clientSocket) {
+            this.clientSocket = clientSocket;
         }
 
         public void run() {
+            try {
+                inputStream = new ObjectInputStream(clientSocket.getInputStream());
+                outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            identify();
+            String in;
+            while (true) {
+                try {
+                    in = (String) inputStream.readObject();
+                    if (in.equals("measurement")) {
+                        readMeasurement();
+                    } else if (in.split(" ")[0].equals("request")) {
+                        sendData(in.split(" ")[1]);
+                    } else if (in.equals("logout")) {
+                        System.out.println("Logged out " + id);
+                        outputStream.writeObject("closed");
+                        return;
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+
+        private void identify() {
+            try {
+                String in = (String) inputStream.readObject();
+                if (in.equals("none")) {
+                    generateNewId();
+                    return;
+                }
+                int id = Integer.parseInt(in);
+                if (data.containsKey(id)) {
+                    outputStream.writeObject("ok");
+                    this.id = id;
+                } else {
+                    generateNewId();
+                }
+            } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void generateNewId() throws IOException {
+            int id = new Random().nextInt((999 - 100) + 1) + 100;
+            this.id = id;
+            data.put(id, new ArrayList<>());
+            outputStream.writeObject(String.valueOf(id));
+        }
+
+        private void sendData(String id) throws IOException {
+            int idAsInt = Integer.parseInt(id);
+            if (data.containsKey(idAsInt)) {
+                outputStream.writeObject(data.get(idAsInt));
+                return;
+            }
+            outputStream.writeObject(new ArrayList<Integer>());
+        }
+
+        private void readMeasurement() throws IOException, ClassNotFoundException {
+            Document document = (Document) inputStream.readObject();
             Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
             int id = Integer.parseInt(measurement.getAttribute("id"));
-            if (!data.containsKey(id)) {
-                data.put(id, new ArrayList<>());
-            }
             data.get(id).add(measurement);
         }
     }
