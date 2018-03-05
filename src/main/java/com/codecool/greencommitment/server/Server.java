@@ -31,6 +31,7 @@ public class Server {
             e.printStackTrace();
             System.exit(1);
         }
+        System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
             try {
@@ -63,6 +64,7 @@ public class Server {
                 return;
             }
             identify();
+            System.out.println("Client " + id + " has connected");
             String in;
             while (true) {
                 try {
@@ -86,10 +88,6 @@ public class Server {
         private void identify() {
             try {
                 String in = (String) inputStream.readObject();
-                if (in.equals("none")) {
-                    generateNewId();
-                    return;
-                }
                 int id = Integer.parseInt(in);
                 if (data.containsKey(id)) {
                     outputStream.writeObject("ok");
@@ -103,7 +101,10 @@ public class Server {
         }
 
         private void generateNewId() throws IOException {
-            int id = new Random().nextInt((999 - 100) + 1) + 100;
+            int id;
+            do {
+                id = new Random().nextInt((999 - 100) + 1) + 100;
+            } while (data.containsKey(id));
             this.id = id;
             data.put(id, new ArrayList<>());
             outputStream.writeObject(String.valueOf(id));
