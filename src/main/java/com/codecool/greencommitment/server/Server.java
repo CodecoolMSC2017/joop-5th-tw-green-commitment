@@ -24,6 +24,7 @@ public class Server {
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
     private Thread stopper = new Thread(new ServerStopper());
+    private Thread autosaver = new Thread(new AutoSaver(10));
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -42,10 +43,13 @@ public class Server {
             try {
                 loadXml();
             } catch (ParserConfigurationException | IOException | SAXException e) {
-                e.printStackTrace();
+                System.out.println("Loading data failed");
             }
+        } else {
+            System.out.println("Could not find previous results");
         }
         stopper.start();
+        autosaver.start();
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
@@ -89,7 +93,7 @@ public class Server {
         System.out.println("Data loaded");
     }
 
-    class Protocol implements Runnable {
+    private class Protocol implements Runnable {
 
         private Socket clientSocket;
         private ObjectInputStream inputStream;
@@ -135,7 +139,7 @@ public class Server {
                             sendData();
                             break;
                         case "logout":
-                            System.out.println(clientId + " logged out");
+                            System.out.println("Client " + clientId + " logged out");
                             outWriter.println(in);
                             return;
                     }
@@ -151,29 +155,31 @@ public class Server {
                 String in = inReader.readLine();
                 int id = Integer.parseInt(in);
                 if (id == 0) {
-                    generateNewId();
+                    clientId = generateNewId();
+                    System.out.println("New client " + clientId + " logged in");
                     return;
                 }
+                clientId = id;
                 if (!data.containsKey(id)) {
                     data.put(id, new HashMap<>());
+                    System.out.println("Unknown client " + clientId + " logged in");
+                } else {
+                    System.out.println("Client " + clientId + " logged in");
                 }
-                clientId = id;
                 outWriter.println("ok");
-                System.out.println("Client " + clientId + " logged in");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        private void generateNewId() {
+        private int generateNewId() {
             int id;
             do {
                 id = new Random().nextInt((999 - 100) + 1) + 100;
             } while (data.containsKey(id));
-            clientId = id;
             data.put(id, new HashMap<>());
             outWriter.println(id);
-            System.out.println("New client " + clientId + " logged in");
+            return id;
         }
 
         private void sendData() {
@@ -208,21 +214,38 @@ public class Server {
         }
     }
 
-    class ServerStopper implements Runnable {
+    private class ServerStopper implements Runnable {
 
         public void run() {
-            if (new Scanner(System.in).hasNext()) {
-                try {
-                    saveXml();
-                } catch (TransformerException | ParserConfigurationException e) {
-                    e.printStackTrace();
+            String command;
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                if (scanner.hasNext()) {
+                    command = scanner.nextLine().toLowerCase();
+                    switch (command) {
+                        case "save":
+                            save();
+                            break;
+                        case "exit":
+                            save();
+                            System.exit(0);
+                        default:
+                            System.out.println("Unknown command: " + command);
+                    }
                 }
-                System.exit(0);
             }
         }
 
-        private void saveXml() throws TransformerException, ParserConfigurationException {
-            System.out.print("Saving data... ");
+        private void save() {
+            try {
+                saveXml();
+                System.out.println("Data saved");
+            } catch (TransformerException | ParserConfigurationException e) {
+                System.out.println("Saving failed");
+            }
+        }
+
+        protected void saveXml() throws TransformerException, ParserConfigurationException {
             DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = docBuilder.newDocument();
 
@@ -258,7 +281,36 @@ public class Server {
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(source, result);
-            System.out.println("Data saved");
+        }
+    }
+
+    private class AutoSaver extends ServerStopper {
+
+        private int intervals;
+
+        public AutoSaver(int intervals) {
+            this.intervals = intervals * 1000;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    Thread.sleep(intervals);
+                    save();
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Autosaver stopped due to interruption");
+            }
+        }
+
+        private void save() {
+            try {
+                saveXml();
+                System.out.println("Data autosaved");
+            } catch (TransformerException | ParserConfigurationException e) {
+                System.out.println("Autosaving failed");
+            }
         }
     }
 }
