@@ -7,7 +7,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -21,6 +20,7 @@ public class Server {
 
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
+    private String xmlFilePath = System.getProperty("user.home") + "measurements.xml";
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -35,6 +35,9 @@ public class Server {
             e.printStackTrace();
             System.exit(1);
         }
+        if (new File(xmlFilePath).exists()) {
+            loadXml();
+        }
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
@@ -46,6 +49,10 @@ public class Server {
                 System.exit(0);
             }
         }
+    }
+
+    private void loadXml() {
+
     }
 
     class Protocol implements Runnable {
@@ -66,7 +73,7 @@ public class Server {
                 inputStream = new ObjectInputStream(clientSocket.getInputStream());
                 outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 inReader = new BufferedReader(new InputStreamReader(inputStream));
-                outWriter = new PrintWriter(outputStream);
+                outWriter = new PrintWriter(outputStream, true);
             } catch (IOException e) {
                 System.out.println("Could not open streams");
                 e.printStackTrace();
@@ -79,67 +86,62 @@ public class Server {
                 System.out.println("Identification failed");
                 return;
             }
-            System.out.println("Client " + clientId + " identified and connected");
+            System.out.println("Client " + clientId + " logged in");
             String in;
             while (true) {
                 try {
                     in = inReader.readLine();
-                    if (in.equals("measurement")) {
-                        readMeasurement();
-                    } else if (in.equals("request")) {
-                        sendData();
-                    } else if (in.equals("logout")) {
-                        System.out.println("Logged out " + clientId);
-                        outWriter.println("closed");
-                        measurementsSaveToXml();
+                    if (in == null) {
+                        System.out.println("Client " + clientId + " disconnected");
                         return;
                     }
-                } catch (IOException | ClassNotFoundException e) {
+                    switch (in) {
+                        case "measurement":
+                            readMeasurement();
+                            break;
+                        case "request":
+                            sendData();
+                            break;
+                        case "logout":
+                            System.out.println(clientId + " logged out");
+                            outWriter.println(in);
+                            return;
+                    }
+                } catch (IOException | NullPointerException e) {
                     e.printStackTrace();
                     return;
                 }
             }
         }
 
-        private void measurementsSaveToXml() {
-            File f = new File(System.getProperty("user.home") + "measurements.xml");
-            /*if (f.exists() && !f.isDirectory()) {
-                appendXmlToExistsFile("/resources/" + clientId + ".xml");
-            }
-            */
-            createNewFile(f);
-        }
+        private void saveXml() throws TransformerException, ParserConfigurationException {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.newDocument();
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(xmlFilePath));
 
-        private void createNewFile(File f) {
-            try {
-                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                Document doc = docBuilder.newDocument();
-                TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                Transformer transformer = transformerFactory.newTransformer();
-                DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(f);
+            Element rootElement = doc.createElement("Clients");
+            doc.appendChild(rootElement);
 
-                Element rootElement = doc.createElement("Clients");
-                doc.appendChild(rootElement);
+            for (Integer clientId : data.keySet()) {
+                Element client = doc.createElement("Client");
+                client.setAttribute("id", clientId.toString());
+                rootElement.appendChild(client);
 
-                for (Integer clientId: data.keySet()) {
-                    Element client = doc.createElement("Client");
-                    client.setAttribute("id", Integer.toString(clientId));
-                    rootElement.appendChild(client);
-
-                    Set<Integer> sensors = data.get(clientId).keySet();
-                    for (Integer sensorId: sensors) {
-                        for (Element measurement: data.get(clientId).get(sensorId)) {
-                            client.appendChild(measurement);
-                        }
+                HashMap<Integer, List<Element>> clientData = data.get(clientId);
+                Element sensor;
+                for (Integer sensorId : clientData.keySet()) {
+                    sensor = doc.createElement("Sensor");
+                    sensor.setAttribute("id", sensorId.toString());
+                    for (Element measurement : clientData.get(sensorId)) {
+                        sensor.appendChild(measurement);
                     }
                 }
-                transformer.transform(source, result);
-
-            } catch (ParserConfigurationException | TransformerException e) {
-                e.printStackTrace();
             }
+            transformer.transform(source, result);
         }
 
         private void identify() throws NumberFormatException {
@@ -148,12 +150,16 @@ public class Server {
                 System.out.println("Received id " + in);
                 int id = Integer.parseInt(in);
                 if (data.containsKey(id)) {
-                    outWriter.println("ok");
-                    clientId = id;
                     System.out.println("Id " + id + " recognised");
                 } else if (id == 0) {
                     generateNewId();
+                    return;
+                } else {
+                    data.put(id, new HashMap<>());
+                    System.out.println("Id " + id + " is not recognised, creating entry for it");
                 }
+                clientId = id;
+                outWriter.println("ok");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -167,18 +173,38 @@ public class Server {
             clientId = id;
             data.put(id, new HashMap<>());
             outWriter.println(id);
-            System.out.println("Assigned new id " + id + "to client");
+            System.out.println("Assigned new id " + id + " to client");
         }
 
         private void sendData() {
             outWriter.println(data.get(clientId));
         }
 
-        private void readMeasurement() throws IOException, ClassNotFoundException {
-            Document document = (Document) inputStream.readObject();
+        private void readMeasurement() {
+            Document document;
+            try {
+                System.out.println("Receiving measurement");
+                outWriter.println("ok");
+                document = (Document) inputStream.readObject();
+                System.out.println("Document received");
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Error receiving data from client " + clientId);
+                outWriter.println("error");
+                e.printStackTrace();
+                return;
+            }
+            if (document == null) {
+                System.out.println("Document is null");
+                outWriter.println("error");
+                return;
+            }
+            System.out.println("Data received from client " + clientId);
+            outWriter.println("ok");
+
             Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
-            System.out.println(document);
             int id = Integer.parseInt(measurement.getAttribute("id"));
+            System.out.println("Sensor id: " + id);
+            System.out.println(measurement.getElementsByTagName("type").item(0).getTextContent());
             if (!data.get(clientId).containsKey(id)) {
                 data.get(clientId).put(id, new ArrayList<>());
             }
