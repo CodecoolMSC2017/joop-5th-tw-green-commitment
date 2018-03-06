@@ -22,8 +22,8 @@ public class Main {
         }
         else if (args.length == 2) {
             try {
-                new Client(Integer.valueOf(args[0]), args[1]).start();
-            } catch (IOException e) {
+                new ClientMenu(new Client(Integer.valueOf(args[0]), args[1]));
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
