@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Client {
     private String clientId;
@@ -13,7 +12,8 @@ public class Client {
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-
+    private BufferedReader inReader;
+    private PrintWriter outWriter;
 
     // Constructor(s)
     public Client(int port, String host) throws IOException {
@@ -25,13 +25,14 @@ public class Client {
         try {
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
+            inReader = new BufferedReader(new InputStreamReader(inputStream));
+            outWriter = new PrintWriter(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
         handleClientId();
         try {
             sendData(new TemperatureSensor());
-            new Scanner(System.in).nextLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,7 +40,7 @@ public class Client {
 
     // Method(s)
     private void handleClientId() {
-        String pathToId = "src/main/resources/clientid.txt";
+        String pathToId = System.getProperty("user.home") + "/clientid";
         File idFile = new File(pathToId);
         if (idFile.exists()) {
             readId(pathToId);
@@ -71,26 +72,22 @@ public class Client {
     }
 
     private void sendId() {
-        try {
-            outputStream.writeObject(clientId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outWriter.println(clientId);
     }
 
     private String getId() {
         String clientId = "0";
         try {
-            outputStream.writeObject(clientId);
-            clientId = (String) inputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+            outWriter.println(clientId);
+            clientId = inReader.readLine();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return clientId;
     }
 
     private void sendData(Sensor sensor) throws IOException {
-        outputStream.writeObject("measurement");
+        outWriter.println("measurement");
         outputStream.writeObject(sensor.readData());
     }
 }

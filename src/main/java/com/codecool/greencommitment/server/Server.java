@@ -3,9 +3,7 @@ package com.codecool.greencommitment.server;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -49,6 +47,8 @@ public class Server {
         private Socket clientSocket;
         private ObjectInputStream inputStream;
         private ObjectOutputStream outputStream;
+        private BufferedReader inReader;
+        private PrintWriter outWriter;
         private int id;
 
         Protocol(Socket clientSocket) {
@@ -59,6 +59,8 @@ public class Server {
             try {
                 inputStream = new ObjectInputStream(clientSocket.getInputStream());
                 outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                inReader = new BufferedReader(new InputStreamReader(inputStream));
+                outWriter = new PrintWriter(outputStream);
             } catch (IOException e) {
                 System.out.println("Could not open streams");
                 e.printStackTrace();
@@ -69,14 +71,14 @@ public class Server {
             String in;
             while (true) {
                 try {
-                    in = (String) inputStream.readObject();
+                    in = inReader.readLine();
                     if (in.equals("measurement")) {
                         readMeasurement();
                     } else if (in.split(" ")[0].equals("request")) {
                         sendData(in.split(" ")[1]);
                     } else if (in.equals("logout")) {
                         System.out.println("Logged out " + id);
-                        outputStream.writeObject("closed");
+                        outWriter.println("closed");
                         return;
                     }
                 } catch (IOException | ClassNotFoundException e) {
@@ -88,16 +90,16 @@ public class Server {
 
         private void identify() {
             try {
-                String in = (String) inputStream.readObject();
+                String in = inReader.readLine();
                 System.out.println("Id sent: " + in);
                 int id = Integer.parseInt(in);
                 if (data.containsKey(id)) {
-                    outputStream.writeObject("ok");
+                    outWriter.println("ok");
                     this.id = id;
                 } else {
                     generateNewId();
                 }
-            } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+            } catch (IOException | NumberFormatException e) {
                 e.printStackTrace();
             }
         }
@@ -109,13 +111,13 @@ public class Server {
             } while (data.containsKey(id));
             this.id = id;
             data.put(id, new ArrayList<>());
-            outputStream.writeObject(String.valueOf(id));
+            outWriter.println(String.valueOf(id));
         }
 
         private void sendData(String id) throws IOException {
             int idAsInt = Integer.parseInt(id);
             if (data.containsKey(idAsInt)) {
-                outputStream.writeObject(data.get(idAsInt));
+                outWriter.println(data.get(idAsInt));
                 return;
             }
             outputStream.writeObject(new ArrayList<Integer>());
@@ -124,6 +126,7 @@ public class Server {
         private void readMeasurement() throws IOException, ClassNotFoundException {
             Document document = (Document) inputStream.readObject();
             Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
+            System.out.println(document);
             int id = Integer.parseInt(measurement.getAttribute("id"));
             data.get(id).add(measurement);
         }
