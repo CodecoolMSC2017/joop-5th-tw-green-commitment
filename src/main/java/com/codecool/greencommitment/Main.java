@@ -1,5 +1,6 @@
 package com.codecool.greencommitment;
 
+import com.codecool.greencommitment.client.ClientMenu;
 import com.codecool.greencommitment.server.Server;
 import com.codecool.greencommitment.client.Client;
 
@@ -11,8 +12,8 @@ public class Main {
         if (args.length == 0) {
             System.out.println("That's no good mate! Use it like this: Main <port> <IP>");
             /*try {
-                new Client(45454, "192.168.150.35").start();
-            } catch (IOException e) {
+                new ClientMenu(new Client(45454, "192.168.150.35"));
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }*/
         }
