@@ -85,7 +85,7 @@ public class Client {
         return inReader.readLine();
     }
 
-    protected String sendData() throws IOException, ConcurrentModificationException {
+    protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
         for (Sensor s:sensors.values()){
             Document doc = s.readData();
             outWriter.println("measurement");

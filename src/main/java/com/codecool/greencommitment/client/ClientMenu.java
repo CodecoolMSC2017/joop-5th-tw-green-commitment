@@ -44,9 +44,11 @@ public class ClientMenu {
             System.out.println("(1) Start/Stop Temperature sensor");
             System.out.println("(2) Start/Stop Air pressure sensor");
             System.out.println("(3) Start/Stop Wind speed sensor");
+            System.out.println("---------------------------------");
             System.out.println("(4) Start/Stop Data send");
             System.out.println("(5) Is it transferring?");
             System.out.println("(6) Request Chart from server");
+            System.out.println("-----------------------------");
             System.out.println("(7) Exit");
             line = cmdScan.nextLine();
 
@@ -66,8 +68,8 @@ public class ClientMenu {
                         System.out.println("\nData transfer turned off!");
                     } else {
                         isTransferring = true;
-                        System.out.println("\nData transfer turned on!");
                         dataTransfer.start();
+                        System.out.println("\nData transfer turned on!");
                     }
                     break;
                 case "5":
@@ -134,9 +136,12 @@ public class ClientMenu {
                 try {
                     client.sendData();
                     TimeUnit.SECONDS.sleep(interval);
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ConcurrentModificationException ex){
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
+                } catch (IOException | NullPointerException ioe) {
+                    System.out.println("Couldn't send data to server! Something wrong on that side! Exiting!");
+                    System.exit(1);
+                } catch (ConcurrentModificationException cme){
                     System.out.println("Try again please!");
                 }
             }
