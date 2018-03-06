@@ -56,30 +56,30 @@ public class ClientMenu {
     private void handleTempSens(){
         if (tempSens) {
             tempSens = false;
-            client.removeSensors("Temperature");
+            System.out.println(client.removeSensors("Temperature"));
         } else {
             tempSens = true;
-            client.addSensors("Temperature");
+            System.out.println(client.addSensors("Temperature"));
         }
     }
 
     private void handleAirSens(){
-        if (tempSens) {
-            tempSens = false;
-            client.removeSensors("Air pressure");
+        if (airSens) {
+            airSens = false;
+            System.out.println(client.removeSensors("Air pressure"));
         } else {
-            tempSens = true;
-            client.addSensors("Air pressure");
+            airSens = true;
+            System.out.println(client.addSensors("Air pressure"));
         }
     }
 
     private void handleWindSens(){
-        if (tempSens) {
-            tempSens = false;
-            client.removeSensors("Windspeed");
+        if (windSens) {
+            windSens = false;
+            System.out.println(client.removeSensors("Windspeed"));
         } else {
-            tempSens = true;
-            client.addSensors("Windspeed");
+            windSens = true;
+            System.out.println(client.addSensors("Windspeed"));
         }
     }
 
@@ -87,7 +87,7 @@ public class ClientMenu {
         int interval = 5; //seconds
         System.out.print("\nSending data to server");
         for (int i=0;i<10;i++) {
-            System.out.println(".");
+            System.out.print(".");
             client.sendData();
             TimeUnit.SECONDS.sleep(interval);
         }
