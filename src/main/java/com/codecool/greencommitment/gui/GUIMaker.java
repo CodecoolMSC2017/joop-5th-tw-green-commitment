@@ -19,8 +19,7 @@ public class GUIMaker {
     public static void makeAlert(String error, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(error);
-        alert.setHeaderText(error);
-        //alert.setContentText(message);
+        alert.setHeaderText(message);
 
         alert.showAndWait();
     }

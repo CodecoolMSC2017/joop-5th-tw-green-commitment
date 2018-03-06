@@ -46,7 +46,7 @@ public class CreateClientScene extends Scene {
                             window.changeScene(GCScene.Client);
                         }
                     } catch (IOException e) {
-
+                        GUIMaker.makeAlert("Connect Error", "Could not connect to the server.");
                     }
                 }
         );
