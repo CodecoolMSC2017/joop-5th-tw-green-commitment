@@ -3,7 +3,6 @@ package com.codecool.greencommitment;
 import com.codecool.greencommitment.server.Server;
 import com.codecool.greencommitment.client.Client;
 
-import javax.xml.transform.TransformerException;
 import java.io.IOException;
 
 public class Main {
@@ -13,7 +12,7 @@ public class Main {
             System.out.println("That's no good mate! Use it like this: Main <port> <IP>");
             /*try {
                 new Client(45454, "192.168.150.35").start();
-            } catch (IOException | TransformerException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }*/
         }
@@ -23,12 +22,12 @@ public class Main {
         else if (args.length == 2) {
             try {
                 new Client(Integer.valueOf(args[0]), args[1]).start();
-            } catch (IOException | TransformerException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         else {
-            System.out.println("Usage: no args to start client, <server> to start server");
+            System.out.println("Usage: <port> to start server, <port> <server> to start client");
         }
     }
 }
