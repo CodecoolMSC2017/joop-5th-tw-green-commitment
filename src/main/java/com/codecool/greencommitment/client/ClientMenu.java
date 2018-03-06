@@ -6,18 +6,38 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class ClientMenu {
-    private Scanner cmdscan = new Scanner(System.in);
+    private Scanner cmdScan = new Scanner(System.in);
     private String line;
     private Client client;
     private boolean tempSens, airSens, windSens, isTransferring;
 
-    public ClientMenu(Client client) throws IOException, InterruptedException {
-        this.client = client;
-        System.out.println(client.start());
-        start();
+    public ClientMenu(int port, String hostName) {
+        try {
+            this.client = new Client(port, hostName);
+        } catch (IOException e) {
+            System.out.println("Couldn't open server port! Please consult your server admin! :)");
+            System.exit(1);
+        }
+        try {
+            String msg = client.start();
+            if (msg.equals("Login unsuccessful!")){
+                System.out.println(msg + "Exiting!");
+                System.exit(1);
+            } else {
+                System.out.println(msg);
+            }
+        } catch (IOException e) {
+            System.out.println("ID file couldn't be written or read in. Please do something about that! :) ");
+        }
+        try {
+            start();
+        } catch (IOException e) {
+            System.out.println("Couldn't send logout signal :(");
+            System.exit(1);
+        }
     }
 
-    public void start() throws IOException, InterruptedException {
+    private void start() throws IOException {
         while(true) {
             System.out.println("\nWelcome to the Client!");
             System.out.println("----------------------");
@@ -28,7 +48,7 @@ public class ClientMenu {
             System.out.println("(5) Is it transferring?");
             System.out.println("(6) Request Chart from server");
             System.out.println("(7) Exit");
-            line = cmdscan.nextLine();
+            line = cmdScan.nextLine();
 
             switch (line) {
                 case "1":
