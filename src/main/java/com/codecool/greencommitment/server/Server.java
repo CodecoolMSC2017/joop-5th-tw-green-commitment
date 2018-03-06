@@ -3,13 +3,19 @@ package com.codecool.greencommitment.server;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Server {
 
@@ -85,12 +91,54 @@ public class Server {
                     } else if (in.equals("logout")) {
                         System.out.println("Logged out " + clientId);
                         outWriter.println("closed");
+                        measurementsSaveToXml();
                         return;
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                     return;
                 }
+            }
+        }
+
+        private void measurementsSaveToXml() {
+            File f = new File(System.getProperty("user.home") + "measurements.xml");
+            /*if (f.exists() && !f.isDirectory()) {
+                appendXmlToExistsFile("/resources/" + clientId + ".xml");
+            }
+            */
+            createNewFile(f);
+        }
+
+        private void createNewFile(File f) {
+            try {
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                Document doc = docBuilder.newDocument();
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(f);
+
+                Element rootElement = doc.createElement("Clients");
+                doc.appendChild(rootElement);
+
+                for (Integer clientId: data.keySet()) {
+                    Element client = doc.createElement("Client");
+                    client.setAttribute("id", Integer.toString(clientId));
+                    rootElement.appendChild(client);
+
+                    Set<Integer> sensors = data.get(clientId).keySet();
+                    for (Integer sensorId: sensors) {
+                        for (Element measurement: data.get(clientId).get(sensorId)) {
+                            client.appendChild(measurement);
+                        }
+                    }
+                }
+                transformer.transform(source, result);
+
+            } catch (ParserConfigurationException | TransformerException e) {
+                e.printStackTrace();
             }
         }
 
