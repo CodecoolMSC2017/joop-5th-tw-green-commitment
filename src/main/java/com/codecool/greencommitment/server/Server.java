@@ -14,7 +14,7 @@ import java.util.Random;
 public class Server {
 
     private int portNumber;
-    private HashMap<Integer, List<Element>> data = new HashMap<>();
+    private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -49,7 +49,7 @@ public class Server {
         private ObjectOutputStream outputStream;
         private BufferedReader inReader;
         private PrintWriter outWriter;
-        private int id;
+        private int clientId;
 
         Protocol(Socket clientSocket) {
             this.clientSocket = clientSocket;
@@ -66,18 +66,24 @@ public class Server {
                 e.printStackTrace();
                 return;
             }
-            identify();
-            System.out.println("Client " + id + " has connected");
+            System.out.println("Client connected, waiting for id");
+            try {
+                identify();
+            } catch (NumberFormatException e) {
+                System.out.println("Identification failed");
+                return;
+            }
+            System.out.println("Client " + clientId + " identified and connected");
             String in;
             while (true) {
                 try {
                     in = inReader.readLine();
                     if (in.equals("measurement")) {
                         readMeasurement();
-                    } else if (in.split(" ")[0].equals("request")) {
-                        sendData(in.split(" ")[1]);
+                    } else if (in.equals("request")) {
+                        sendData();
                     } else if (in.equals("logout")) {
-                        System.out.println("Logged out " + id);
+                        System.out.println("Logged out " + clientId);
                         outWriter.println("closed");
                         return;
                     }
@@ -88,39 +94,36 @@ public class Server {
             }
         }
 
-        private void identify() {
+        private void identify() throws NumberFormatException {
             try {
                 String in = inReader.readLine();
-                System.out.println("Id sent: " + in);
+                System.out.println("Received id " + in);
                 int id = Integer.parseInt(in);
                 if (data.containsKey(id)) {
                     outWriter.println("ok");
-                    this.id = id;
-                } else {
+                    clientId = id;
+                    System.out.println("Id " + id + " recognised");
+                } else if (id == 0) {
                     generateNewId();
                 }
-            } catch (IOException | NumberFormatException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        private void generateNewId() throws IOException {
+        private void generateNewId() {
             int id;
             do {
                 id = new Random().nextInt((999 - 100) + 1) + 100;
             } while (data.containsKey(id));
-            this.id = id;
-            data.put(id, new ArrayList<>());
-            outWriter.println(String.valueOf(id));
+            clientId = id;
+            data.put(id, new HashMap<>());
+            outWriter.println(id);
+            System.out.println("Assigned new id " + id + "to client");
         }
 
-        private void sendData(String id) throws IOException {
-            int idAsInt = Integer.parseInt(id);
-            if (data.containsKey(idAsInt)) {
-                outWriter.println(data.get(idAsInt));
-                return;
-            }
-            outputStream.writeObject(new ArrayList<Integer>());
+        private void sendData() {
+            outWriter.println(data.get(clientId));
         }
 
         private void readMeasurement() throws IOException, ClassNotFoundException {
@@ -128,7 +131,10 @@ public class Server {
             Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
             System.out.println(document);
             int id = Integer.parseInt(measurement.getAttribute("id"));
-            data.get(id).add(measurement);
+            if (!data.get(clientId).containsKey(id)) {
+                data.get(clientId).put(id, new ArrayList<>());
+            }
+            data.get(clientId).get(id).add(measurement);
         }
     }
 }
