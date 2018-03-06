@@ -33,9 +33,7 @@ public class Client {
         if (handleLogin()) {
             return "Logged in to server!";
         } else {
-            System.out.println("Login unsuccessful!");
-            System.exit(1);
-            return "-1";
+            return"Login unsuccessful!";
         }
     }
 
