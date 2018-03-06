@@ -43,8 +43,10 @@ public class ClientMenu {
                 case "4":
                     if (isTransferring){
                         isTransferring = false;
+                        System.out.println("\nData transfer turned off!");
                     } else {
                         isTransferring = true;
+                        System.out.println("\nData transfer turned on!");
                         dataTransfer.start();
                     }
                     break;
