@@ -7,7 +7,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -21,6 +20,7 @@ public class Server {
 
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
+    private String xmlFilePath = System.getProperty("user.home") + "measurements.xml";
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -35,6 +35,9 @@ public class Server {
             e.printStackTrace();
             System.exit(1);
         }
+        if (new File(xmlFilePath).exists()) {
+            loadXml();
+        }
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
@@ -46,6 +49,10 @@ public class Server {
                 System.exit(0);
             }
         }
+    }
+
+    private void loadXml() {
+        
     }
 
     class Protocol implements Runnable {
@@ -107,16 +114,7 @@ public class Server {
             }
         }
 
-        private void measurementsSaveToXml() {
-            File f = new File(System.getProperty("user.home") + "measurements.xml");
-            /*if (f.exists() && !f.isDirectory()) {
-                appendXmlToExistsFile("/resources/" + clientId + ".xml");
-            }
-            */
-            createNewFile(f);
-        }
-
-        private void createNewFile(File f) {
+        private void saveXml() {
             try {
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -124,19 +122,19 @@ public class Server {
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();
                 DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(f);
+                StreamResult result = new StreamResult(new File(xmlFilePath));
 
                 Element rootElement = doc.createElement("Clients");
                 doc.appendChild(rootElement);
 
-                for (Integer clientId: data.keySet()) {
+                for (Integer clientId : data.keySet()) {
                     Element client = doc.createElement("Client");
                     client.setAttribute("id", Integer.toString(clientId));
                     rootElement.appendChild(client);
 
                     Set<Integer> sensors = data.get(clientId).keySet();
-                    for (Integer sensorId: sensors) {
-                        for (Element measurement: data.get(clientId).get(sensorId)) {
+                    for (Integer sensorId : sensors) {
+                        for (Element measurement : data.get(clientId).get(sensorId)) {
                             client.appendChild(measurement);
                         }
                     }
