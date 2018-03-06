@@ -114,39 +114,34 @@ public class Server {
             }
         }
 
-        private void saveXml() {
-            try {
-                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                Document doc = docBuilder.newDocument();
-                TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                Transformer transformer = transformerFactory.newTransformer();
-                DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(new File(xmlFilePath));
+        private void saveXml() throws TransformerException, ParserConfigurationException {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.newDocument();
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(xmlFilePath));
 
-                Element rootElement = doc.createElement("Clients");
-                doc.appendChild(rootElement);
+            Element rootElement = doc.createElement("Clients");
+            doc.appendChild(rootElement);
 
-                for (Integer clientId : data.keySet()) {
-                    Element client = doc.createElement("Client");
-                    client.setAttribute("id", clientId.toString());
-                    rootElement.appendChild(client);
+            for (Integer clientId : data.keySet()) {
+                Element client = doc.createElement("Client");
+                client.setAttribute("id", clientId.toString());
+                rootElement.appendChild(client);
 
-                    HashMap<Integer, List<Element>> clientData = data.get(clientId);
-                    Element sensor;
-                    for (Integer sensorId : clientData.keySet()) {
-                        sensor = doc.createElement("Sensor");
-                        sensor.setAttribute("id", sensorId.toString());
-                        for (Element measurement : clientData.get(sensorId)) {
-                            sensor.appendChild(measurement);
-                        }
+                HashMap<Integer, List<Element>> clientData = data.get(clientId);
+                Element sensor;
+                for (Integer sensorId : clientData.keySet()) {
+                    sensor = doc.createElement("Sensor");
+                    sensor.setAttribute("id", sensorId.toString());
+                    for (Element measurement : clientData.get(sensorId)) {
+                        sensor.appendChild(measurement);
                     }
                 }
-                transformer.transform(source, result);
-
-            } catch (ParserConfigurationException | TransformerException e) {
-                e.printStackTrace();
             }
+            transformer.transform(source, result);
         }
 
         private void identify() throws NumberFormatException {
