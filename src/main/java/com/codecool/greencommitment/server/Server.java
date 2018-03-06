@@ -71,7 +71,8 @@ public class Server {
             Element client = (Element) clients.item(i);
             HashMap<Integer, List<Element>> innerMap = new HashMap<>();
             readData.put(Integer.parseInt(client.getAttribute("id")), innerMap);
-            NodeList sensors = client.getElementsByTagName("Sensor");
+            Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
+            NodeList sensors = sensorsE.getElementsByTagName("Sensor");
             for (int j = 0; j < sensors.getLength(); j++) {
                 Element sensor = (Element) sensors.item(j);
                 List<Element> measurementsList = new ArrayList<>();
