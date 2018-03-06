@@ -2,7 +2,6 @@ package com.codecool.greencommitment.server;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -17,13 +16,16 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class Server {
 
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
-    private String xmlFilePath = System.getProperty("user.home") + "measurements.xml";
+    private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -129,6 +131,11 @@ public class Server {
                     switch (in) {
                         case "measurement":
                             readMeasurement();
+                            try {
+                                saveXml();
+                            } catch (TransformerException | ParserConfigurationException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         case "request":
                             sendData();
@@ -162,13 +169,23 @@ public class Server {
                 client.setAttribute("id", clientId.toString());
                 rootElement.appendChild(client);
 
+                Element sensors = doc.createElement("Sensors");
+                client.appendChild(sensors);
+
                 HashMap<Integer, List<Element>> clientData = data.get(clientId);
                 Element sensor;
                 for (Integer sensorId : clientData.keySet()) {
                     sensor = doc.createElement("Sensor");
                     sensor.setAttribute("id", sensorId.toString());
+                    sensors.appendChild(sensor);
                     for (Element measurement : clientData.get(sensorId)) {
-                        sensor.appendChild(measurement);
+                        Element measurementCopy = doc.createElement("measurement");
+                        measurementCopy.setAttribute("id", measurement.getAttribute("id"));
+                        measurementCopy.setAttribute("time", measurement.getAttribute("time"));
+                        measurementCopy.setAttribute("value", measurement.getAttribute("value"));
+                        measurementCopy.setAttribute("type", measurement.getAttribute("type"));
+                        
+                        sensor.appendChild(measurementCopy);
                     }
                 }
             }
