@@ -4,13 +4,13 @@ import org.w3c.dom.Document;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client {
     private String clientId;
     private Socket socket;
-    private List<Sensor> sensors;
+    private Map<String, Sensor> sensors;
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -20,22 +20,22 @@ public class Client {
     // Constructor(s)
     public Client(int port, String host) throws IOException {
         socket = new Socket(host, port);
-        sensors = new ArrayList<>();
+        sensors = new HashMap<>();
     }
 
-    public void start() throws IOException {
+    public String start() throws IOException {
         outputStream = new ObjectOutputStream(socket.getOutputStream());
         inputStream = new ObjectInputStream(socket.getInputStream());
         inReader = new BufferedReader(new InputStreamReader(inputStream));
         outWriter = new PrintWriter(outputStream, true);
 
         if (handleLogin()) {
-            sendData(new TemperatureSensor());
+            return "Logged in to server!";
         } else {
             System.out.println("Login unsuccessful!");
-            logOut();
+            System.exit(1);
+            return "-1";
         }
-
     }
 
     // Method(s)
@@ -80,29 +80,50 @@ public class Client {
         return clientId;
     }
 
-    private String logOut() throws IOException {
+    protected String logOut() throws IOException {
         String logOut = "logout";
         outWriter.println(logOut);
         return inReader.readLine();
     }
 
-    private String sendData(Sensor sensor) throws IOException {
-
-        Document doc = sensor.readData();
-        outWriter.println("measurement");
-        String ok = inReader.readLine();
-        if (ok.equals("ok")) {
-            outputStream.writeObject(doc);
+    protected String sendData() throws IOException {
+        for (Sensor s:sensors.values()){
+            Document doc = s.readData();
+            outWriter.println("measurement");
+            if (inReader.readLine().equals("ok")) {
+                outputStream.writeObject(doc);
+                if (inReader.readLine().equals("error")){
+                    return "Server data handling error. Please restart the client!";
+                }
+            }
         }
-        return inReader.readLine();
+        return "ok";
     }
 
-    public List<Sensor> getSensors() {
+    protected Map<String, Sensor> getSensors() {
         return sensors;
     }
 
-    public void setSensors(List<Sensor> sensors) {
-        this.sensors = sensors;
+    protected String addSensors(String type) {
+        if (type.equals("Temperature")){
+            sensors.put(type, new TemperatureSensor());
+        }
+        else if (type.equals("Air pressure")){
+            sensors.put(type, new AirPressureSensor());
+        }
+        else if (type.equals("Windspeed")){
+            sensors.put(type, new WindSpeedSensor());
+        }
+
+        return type + " sensor turned on!";
+    }
+    protected String removeSensors(String type) {
+        for (String k:sensors.keySet()){
+            if (k.equals(type)){
+                sensors.remove(type);
+            }
+        }
+        return type + " sensor turned off!";
     }
 }
 
