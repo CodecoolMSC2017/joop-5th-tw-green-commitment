@@ -59,6 +59,7 @@ public class Server {
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
+        System.out.print("Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
 
@@ -85,6 +86,7 @@ public class Server {
             }
         }
         data = readData;
+        System.out.println("Data loaded");
     }
 
     class Protocol implements Runnable {
@@ -117,7 +119,6 @@ public class Server {
                 System.out.println("Identification failed");
                 return;
             }
-            System.out.println("Client " + clientId + " logged in");
             String in;
             while (true) {
                 try {
@@ -158,6 +159,7 @@ public class Server {
                 }
                 clientId = id;
                 outWriter.println("ok");
+                System.out.println("Client " + clientId + " logged in");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -171,7 +173,7 @@ public class Server {
             clientId = id;
             data.put(id, new HashMap<>());
             outWriter.println(id);
-            System.out.println("Assigned new id " + id + " to client");
+            System.out.println("New client " + clientId + " logged in");
         }
 
         private void sendData() {
@@ -220,6 +222,7 @@ public class Server {
         }
 
         private void saveXml() throws TransformerException, ParserConfigurationException {
+            System.out.print("Saving data... ");
             DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = docBuilder.newDocument();
 
@@ -255,6 +258,7 @@ public class Server {
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File(xmlFilePath));
             transformer.transform(source, result);
+            System.out.println("Data saved");
         }
     }
 }
