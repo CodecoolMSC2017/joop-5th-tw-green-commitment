@@ -5,12 +5,11 @@ import org.w3c.dom.Document;
 
 import java.text.DecimalFormat;
 
+public class WindSpeedSensor extends Sensor {
 
-class TemperatureSensor extends Sensor {
-
-    TemperatureSensor(){
-        this.id = 453;
-        this.type = "celsius";
+    WindSpeedSensor(){
+        this.id = 1785;
+        this.type = "kph";
     }
 
     @Override
@@ -19,10 +18,10 @@ class TemperatureSensor extends Sensor {
         MeasurementParser parser = new MeasurementParser();
         DecimalFormat df = new DecimalFormat("#.#");
 
-        double temperature = Double.valueOf(df.format(generateRandomNumber(18, 25)));
+        double windSpeed = Double.valueOf(df.format(generateRandomNumber(0, 100)));
         long currentTime = currentTimeMillis();
 
-        doc = parser.createDocument(id, currentTime, temperature, type);
+        doc = parser.createDocument(id, currentTime, windSpeed, type);
 
         return doc;
     }

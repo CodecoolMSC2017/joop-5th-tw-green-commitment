@@ -8,9 +8,13 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Usage: Main <port> <IP>");
         if (args.length == 0) {
-            System.out.println("That's no good mate! Give me some ports and addresses!");
+            System.out.println("That's no good mate! Use it like this: Main <port> <IP>");
+            /*try {
+                new Client(45454, "192.168.150.35").start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
         }
         else if (args.length == 1) {
             new Server(Integer.valueOf(args[0])).start();
@@ -19,11 +23,11 @@ public class Main {
             try {
                 new Client(Integer.valueOf(args[0]), args[1]).start();
             } catch (IOException e) {
-                System.out.println("Couldn't create socket!");
+                e.printStackTrace();
             }
         }
         else {
-            System.out.println("Usage: no args to start client, <server> to start server");
+            System.out.println("Usage: <port> to start server, <port> <server> to start client");
         }
     }
 }
