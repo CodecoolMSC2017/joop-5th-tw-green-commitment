@@ -34,7 +34,7 @@ public class Client {
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
             inReader = new BufferedReader(new InputStreamReader(inputStream));
-            outWriter = new PrintWriter(outputStream);
+            outWriter = new PrintWriter(outputStream, true);
             transformerFactory = TransformerFactory.newInstance();
             transformer = transformerFactory.newTransformer();
         } catch (IOException | TransformerConfigurationException e) {

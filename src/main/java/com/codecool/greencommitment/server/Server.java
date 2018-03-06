@@ -60,7 +60,7 @@ public class Server {
                 inputStream = new ObjectInputStream(clientSocket.getInputStream());
                 outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 inReader = new BufferedReader(new InputStreamReader(inputStream));
-                outWriter = new PrintWriter(outputStream);
+                outWriter = new PrintWriter(outputStream, true);
             } catch (IOException e) {
                 System.out.println("Could not open streams");
                 e.printStackTrace();
