@@ -29,7 +29,7 @@ public class Client {
         sensors = new ArrayList<>();
     }
 
-    public void start() {
+    public void start() throws IOException, TransformerException {
         try {
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
@@ -41,61 +41,57 @@ public class Client {
             e.printStackTrace();
         }
         handleClientId();
-        /*try {
-            sendData(new TemperatureSensor());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        //sendData(new TemperatureSensor());
+        System.out.println(logOut());
+
     }
 
     // Method(s)
-    private void handleClientId() {
+    private String handleClientId() throws IOException {
         String pathToId = System.getProperty("user.home") + "/clientid";
         File idFile = new File(pathToId);
+        String ok;
         if (idFile.exists()) {
             readId(pathToId);
-            sendId();
-        } else {
+            ok = sendId();
+        } else if (!(idFile.exists())) {
             writeId(pathToId, getId());
+            ok = "ok";
+        } else {
+            ok = "no";
         }
+        return ok;
     }
 
-    private void readId(String pathToId) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(pathToId));
-            this.clientId = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void readId(String pathToId) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(pathToId));
+        this.clientId = br.readLine();
+        br.close();
     }
 
-    private void writeId(String pathToId, String id) {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(pathToId));
-            bw.write(id);
-            bw.flush();
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void writeId(String pathToId, String id) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(pathToId));
+        bw.write(id);
+        bw.flush();
+        bw.close();
     }
 
-    private void sendId() {
+    private String sendId() throws IOException {
         outWriter.println(clientId);
+        return inReader.readLine();
     }
 
-    private String getId() {
+    private String getId() throws IOException {
         String clientId = "0";
-        try {
-            outWriter.println(clientId);
-            System.out.println(clientId);
-            clientId = inReader.readLine();
-            System.out.println(clientId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outWriter.println(clientId);
+        clientId = inReader.readLine();
         return clientId;
+    }
+
+    private String logOut() throws IOException {
+        String logOut = "logout";
+        outWriter.println(logOut);
+        return inReader.readLine();
     }
 
     private void sendData(Sensor sensor) throws IOException, TransformerException {
