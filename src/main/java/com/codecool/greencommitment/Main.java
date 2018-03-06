@@ -10,6 +10,11 @@ public class Main {
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("That's no good mate! Use it like this: Main <port> <IP>");
+            /*try {
+                new Client(45454, "192.168.150.35").start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
         }
         else if (args.length == 1) {
             new Server(Integer.valueOf(args[0])).start();
