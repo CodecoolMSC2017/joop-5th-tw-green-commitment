@@ -2,6 +2,7 @@ package com.codecool.greencommitment.common;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,21 +33,9 @@ public class MeasurementParser {
         // Measurement / root
         Element root = document.createElement("measurement");
         root.setAttribute("id", Integer.toString(id));
-
-        // Time
-        Element timeE = document.createElement("time");
-        timeE.setTextContent(String.valueOf(time));
-        root.appendChild(timeE);
-
-        // Value
-        Element valueE = document.createElement("value");
-        valueE.setTextContent(String.valueOf(value));
-        root.appendChild(valueE);
-
-        // Type
-        Element typeE = document.createElement("type");
-        typeE.setTextContent(type);
-        root.appendChild(typeE);
+        root.setAttribute("time", String.valueOf(time));
+        root.setAttribute("value", String.valueOf(value));
+        root.setAttribute("type", type);
 
         // Add it to the document
         document.appendChild(root);

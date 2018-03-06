@@ -2,6 +2,8 @@ package com.codecool.greencommitment.server;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,13 +16,16 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class Server {
 
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
-    private String xmlFilePath = System.getProperty("user.home") + "measurements.xml";
+    private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -36,7 +41,11 @@ public class Server {
             System.exit(1);
         }
         if (new File(xmlFilePath).exists()) {
-            loadXml();
+            try {
+                loadXml();
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                e.printStackTrace();
+            }
         }
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
@@ -51,8 +60,32 @@ public class Server {
         }
     }
 
-    private void loadXml() {
+    private void loadXml() throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = db.parse(xmlFilePath);
 
+        HashMap<Integer, HashMap<Integer, List<Element>>> readData = new HashMap<>();
+
+
+        Element rootElement = (Element) doc.getElementsByTagName("Clients").item(0);
+        NodeList clients = rootElement.getElementsByTagName("Client");
+        for (int i = 0; i < clients.getLength(); i++) {
+            Element client = (Element) clients.item(i);
+            HashMap<Integer, List<Element>> innerMap = new HashMap<>();
+            readData.put(Integer.parseInt(client.getAttribute("id")), innerMap);
+            NodeList sensors = client.getElementsByTagName("Sensor");
+            for (int j = 0; j < sensors.getLength(); j++) {
+                Element sensor = (Element) sensors.item(j);
+                List<Element> measurementsList = new ArrayList<>();
+                innerMap.put(Integer.parseInt(sensor.getAttribute("id")), measurementsList);
+                NodeList measurements = sensor.getElementsByTagName("measurement");
+                for (int k = 0; k < measurements.getLength(); k++) {
+                    Element measurement = (Element) measurements.item(k);
+                    measurementsList.add(measurement);
+                }
+            }
+        }
+        data = readData;
     }
 
     class Protocol implements Runnable {
@@ -98,6 +131,11 @@ public class Server {
                     switch (in) {
                         case "measurement":
                             readMeasurement();
+                            try {
+                                saveXml();
+                            } catch (TransformerException | ParserConfigurationException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         case "request":
                             sendData();
@@ -131,13 +169,23 @@ public class Server {
                 client.setAttribute("id", clientId.toString());
                 rootElement.appendChild(client);
 
+                Element sensors = doc.createElement("Sensors");
+                client.appendChild(sensors);
+
                 HashMap<Integer, List<Element>> clientData = data.get(clientId);
                 Element sensor;
                 for (Integer sensorId : clientData.keySet()) {
                     sensor = doc.createElement("Sensor");
                     sensor.setAttribute("id", sensorId.toString());
+                    sensors.appendChild(sensor);
                     for (Element measurement : clientData.get(sensorId)) {
-                        sensor.appendChild(measurement);
+                        Element measurementCopy = doc.createElement("measurement");
+                        measurementCopy.setAttribute("id", measurement.getAttribute("id"));
+                        measurementCopy.setAttribute("time", measurement.getAttribute("time"));
+                        measurementCopy.setAttribute("value", measurement.getAttribute("value"));
+                        measurementCopy.setAttribute("type", measurement.getAttribute("type"));
+                        
+                        sensor.appendChild(measurementCopy);
                     }
                 }
             }
