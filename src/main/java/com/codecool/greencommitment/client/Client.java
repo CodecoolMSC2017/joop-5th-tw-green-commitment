@@ -1,11 +1,7 @@
 package com.codecool.greencommitment.client;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,8 +16,6 @@ public class Client {
     private ObjectOutputStream outputStream;
     private BufferedReader inReader;
     private PrintWriter outWriter;
-    private TransformerFactory transformerFactory;
-    private Transformer transformer;
 
     // Constructor(s)
     public Client(int port, String host) throws IOException {
@@ -29,25 +23,23 @@ public class Client {
         sensors = new ArrayList<>();
     }
 
-    public void start() throws IOException, TransformerException {
-        try {
-            outputStream = new ObjectOutputStream(socket.getOutputStream());
-            inputStream = new ObjectInputStream(socket.getInputStream());
-            inReader = new BufferedReader(new InputStreamReader(inputStream));
-            outWriter = new PrintWriter(outputStream, true);
-            transformerFactory = TransformerFactory.newInstance();
-            transformer = transformerFactory.newTransformer();
-        } catch (IOException | TransformerConfigurationException e) {
-            e.printStackTrace();
+    public void start() throws IOException {
+        outputStream = new ObjectOutputStream(socket.getOutputStream());
+        inputStream = new ObjectInputStream(socket.getInputStream());
+        inReader = new BufferedReader(new InputStreamReader(inputStream));
+        outWriter = new PrintWriter(outputStream, true);
+
+        if (handleLogin()) {
+            sendData(new TemperatureSensor());
+        } else {
+            System.out.println("Login unsuccessful!");
+            logOut();
         }
-        handleClientId();
-        //sendData(new TemperatureSensor());
-        System.out.println(logOut());
 
     }
 
     // Method(s)
-    private String handleClientId() throws IOException {
+    private boolean handleLogin() throws IOException {
         String pathToId = System.getProperty("user.home") + "/clientid";
         File idFile = new File(pathToId);
         String ok;
@@ -60,7 +52,7 @@ public class Client {
         } else {
             ok = "no";
         }
-        return ok;
+        return ok.equals("ok");
     }
 
     private void readId(String pathToId) throws IOException {
@@ -94,14 +86,23 @@ public class Client {
         return inReader.readLine();
     }
 
-    private void sendData(Sensor sensor) throws IOException, TransformerException {
-        outWriter.println("measurement");
-        if (inReader.readLine().equals("OK")) {
-            DOMSource source = new DOMSource(sensor.readData());
-            StreamResult result = new StreamResult(outputStream);
+    private String sendData(Sensor sensor) throws IOException {
 
-            transformer.transform(source, result);
+        Document doc = sensor.readData();
+        outWriter.println("measurement");
+        String ok = inReader.readLine();
+        if (ok.equals("ok")) {
+            outputStream.writeObject(doc);
         }
+        return inReader.readLine();
+    }
+
+    public List<Sensor> getSensors() {
+        return sensors;
+    }
+
+    public void setSensors(List<Sensor> sensors) {
+        this.sensors = sensors;
     }
 }
 
