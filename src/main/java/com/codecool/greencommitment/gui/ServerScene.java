@@ -10,10 +10,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Text;
 
+import java.time.LocalDateTime;
+
 public class ServerScene extends Scene {
     private GCWindow window;
     private FlowPane pane;
-
 
 
     TabPane tabPane;
@@ -41,21 +42,45 @@ public class ServerScene extends Scene {
 
         // Console tab setup
         consoleTab = new Tab("Console");
+        consoleTab.setClosable(false);
         tabPane.getTabs().add(consoleTab);
 
-        consoleField = new Text("Hallo");
+        consoleField = new Text();
         consoleField.maxWidth(1920);
-        consoleField.setText("Server created...\n");
-        consoleField.setText(consoleField.getText() + "text\n");
+        consoleField.setLineSpacing(5);
         consoleTab.setContent(consoleField);
 
         // Results tab setup
         resultsTab = new Tab("Results");
+        resultsTab.setClosable(false);
         tabPane.getTabs().add(resultsTab);
         resultImg = new ImageView("http://www.glowscript.org/docs/VPythonDocs/images/graph.png");
         resultsTab.setContent(resultImg);
 
-
         pane.getChildren().add(tabPane);
+
+        consoleWrite("Server", "Server started.");
+
+        // Just for testing the console
+        new Thread(() -> {
+            while (true) {
+                try {
+                    consoleWrite("User124", "Sent a data...");
+                    Thread.sleep(1000);
+                } catch (Exception e) {}
+            }
+        }).start();
+    }
+
+
+    // Method(s)
+    private void consoleWrite(String source, String text) {
+        consoleField.setText(consoleField.getText() +
+                String.format("%s:%s:%s - (%s) >>> %s\n",
+                        LocalDateTime.now().getHour(),
+                        LocalDateTime.now().getMinute(),
+                        LocalDateTime.now().getSecond(),
+                        source, text)
+        );
     }
 }
