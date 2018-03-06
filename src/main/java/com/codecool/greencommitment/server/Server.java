@@ -52,7 +52,7 @@ public class Server {
     }
 
     private void loadXml() {
-        
+
     }
 
     class Protocol implements Runnable {
@@ -129,13 +129,16 @@ public class Server {
 
                 for (Integer clientId : data.keySet()) {
                     Element client = doc.createElement("Client");
-                    client.setAttribute("id", Integer.toString(clientId));
+                    client.setAttribute("id", clientId.toString());
                     rootElement.appendChild(client);
 
-                    Set<Integer> sensors = data.get(clientId).keySet();
-                    for (Integer sensorId : sensors) {
-                        for (Element measurement : data.get(clientId).get(sensorId)) {
-                            client.appendChild(measurement);
+                    HashMap<Integer, List<Element>> clientData = data.get(clientId);
+                    Element sensor;
+                    for (Integer sensorId : clientData.keySet()) {
+                        sensor = doc.createElement("Sensor");
+                        sensor.setAttribute("id", sensorId.toString());
+                        for (Element measurement : clientData.get(sensorId)) {
+                            sensor.appendChild(measurement);
                         }
                     }
                 }
