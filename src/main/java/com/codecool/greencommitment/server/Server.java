@@ -112,7 +112,6 @@ public class Server {
                 e.printStackTrace();
                 return;
             }
-            System.out.println("Client connected, waiting for id");
             try {
                 identify();
             } catch (NumberFormatException e) {
@@ -184,7 +183,7 @@ public class Server {
                         measurementCopy.setAttribute("time", measurement.getAttribute("time"));
                         measurementCopy.setAttribute("value", measurement.getAttribute("value"));
                         measurementCopy.setAttribute("type", measurement.getAttribute("type"));
-                        
+
                         sensor.appendChild(measurementCopy);
                     }
                 }
@@ -195,16 +194,13 @@ public class Server {
         private void identify() throws NumberFormatException {
             try {
                 String in = inReader.readLine();
-                System.out.println("Received id " + in);
                 int id = Integer.parseInt(in);
-                if (data.containsKey(id)) {
-                    System.out.println("Id " + id + " recognised");
-                } else if (id == 0) {
+                if (id == 0) {
                     generateNewId();
                     return;
-                } else {
+                }
+                if (!data.containsKey(id)) {
                     data.put(id, new HashMap<>());
-                    System.out.println("Id " + id + " is not recognised, creating entry for it");
                 }
                 clientId = id;
                 outWriter.println("ok");
@@ -231,31 +227,27 @@ public class Server {
         private void readMeasurement() {
             Document document;
             try {
-                System.out.println("Receiving measurement");
                 outWriter.println("ok");
                 document = (Document) inputStream.readObject();
-                System.out.println("Document received");
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Error receiving data from client " + clientId);
                 outWriter.println("error");
-                e.printStackTrace();
                 return;
             }
             if (document == null) {
-                System.out.println("Document is null");
+                System.out.println("Error receiving data from client " + clientId + " : document is null");
                 outWriter.println("error");
                 return;
             }
-            System.out.println("Data received from client " + clientId);
+            System.out.print("Data received from client " + clientId);
             outWriter.println("ok");
 
             Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
             int id = Integer.parseInt(measurement.getAttribute("id"));
-            System.out.println("Sensor id: " + id);
-            System.out.println(measurement.getElementsByTagName("type").item(0).getTextContent());
             if (!data.get(clientId).containsKey(id)) {
                 data.get(clientId).put(id, new ArrayList<>());
             }
+            System.out.println(", from sensor " + id);
             data.get(clientId).get(id).add(measurement);
         }
     }
