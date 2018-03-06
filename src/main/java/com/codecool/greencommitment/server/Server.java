@@ -73,21 +73,28 @@ public class Server {
                 System.out.println("Identification failed");
                 return;
             }
-            System.out.println("Client " + clientId + " identified and connected");
+            System.out.println("Client " + clientId + " logged in");
             String in;
             while (true) {
                 try {
                     in = inReader.readLine();
-                    if (in.equals("measurement")) {
-                        readMeasurement();
-                    } else if (in.equals("request")) {
-                        sendData();
-                    } else if (in.equals("logout")) {
-                        System.out.println("Logged out " + clientId);
-                        outWriter.println("closed");
+                    if (in == null) {
+                        System.out.println("Client " + clientId + " disconnected");
                         return;
                     }
-                } catch (IOException | ClassNotFoundException e) {
+                    switch (in) {
+                        case "measurement":
+                            readMeasurement();
+                            break;
+                        case "request":
+                            sendData();
+                            break;
+                        case "logout":
+                            System.out.println(clientId + " logged out");
+                            outWriter.println(in);
+                            return;
+                    }
+                } catch (IOException | ClassNotFoundException | NullPointerException e) {
                     e.printStackTrace();
                     return;
                 }
@@ -100,12 +107,16 @@ public class Server {
                 System.out.println("Received id " + in);
                 int id = Integer.parseInt(in);
                 if (data.containsKey(id)) {
-                    outWriter.println("ok");
-                    clientId = id;
                     System.out.println("Id " + id + " recognised");
                 } else if (id == 0) {
                     generateNewId();
+                    return;
+                } else {
+                    data.put(id, new HashMap<>());
+                    System.out.println("Id " + id + " is not recognised, creating entry for it");
                 }
+                clientId = id;
+                outWriter.println("ok");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -119,7 +130,7 @@ public class Server {
             clientId = id;
             data.put(id, new HashMap<>());
             outWriter.println(id);
-            System.out.println("Assigned new id " + id + "to client");
+            System.out.println("Assigned new id " + id + " to client");
         }
 
         private void sendData() {
