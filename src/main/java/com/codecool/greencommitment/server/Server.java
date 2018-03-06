@@ -94,7 +94,7 @@ public class Server {
                             outWriter.println(in);
                             return;
                     }
-                } catch (IOException | ClassNotFoundException | NullPointerException e) {
+                } catch (IOException | NullPointerException e) {
                     e.printStackTrace();
                     return;
                 }
@@ -137,11 +137,31 @@ public class Server {
             outWriter.println(data.get(clientId));
         }
 
-        private void readMeasurement() throws IOException, ClassNotFoundException {
-            Document document = (Document) inputStream.readObject();
+        private void readMeasurement() {
+            Document document;
+            try {
+                System.out.println("Receiving measurement");
+                outWriter.println("ok");
+                document = (Document) inputStream.readObject();
+                System.out.println("Document received");
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Error receiving data from client " + clientId);
+                outWriter.println("error");
+                e.printStackTrace();
+                return;
+            }
+            if (document == null) {
+                System.out.println("Document is null");
+                outWriter.println("error");
+                return;
+            }
+            System.out.println("Data received from client " + clientId);
+            outWriter.println("ok");
+
             Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
-            System.out.println(document);
             int id = Integer.parseInt(measurement.getAttribute("id"));
+            System.out.println("Sensor id: " + id);
+            System.out.println(measurement.getElementsByTagName("type").item(0).getTextContent());
             if (!data.get(clientId).containsKey(id)) {
                 data.get(clientId).put(id, new ArrayList<>());
             }
