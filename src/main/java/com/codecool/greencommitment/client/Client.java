@@ -22,12 +22,9 @@ public class Client {
     }
 
     public void start() {
-        try (
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
-        ) {
-            outputStream = out;
-            inputStream = in;
+        try {
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,7 +39,7 @@ public class Client {
 
     // Method(s)
     private void handleClientId() {
-        String pathToId = "src/main/resources/clientid";
+        String pathToId = "src/main/resources/clientid.txt";
         File idFile = new File(pathToId);
         if (idFile.exists()) {
             readId(pathToId);
