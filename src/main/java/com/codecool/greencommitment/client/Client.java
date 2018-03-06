@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +33,7 @@ public class Client {
         if (handleLogin()) {
             return "Logged in to server!";
         } else {
-            System.out.println("Login unsuccessful!");
-            System.exit(1);
-            return "-1";
+            return"Login unsuccessful!";
         }
     }
 
@@ -86,7 +85,7 @@ public class Client {
         return inReader.readLine();
     }
 
-    protected String sendData() throws IOException {
+    protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
         for (Sensor s:sensors.values()){
             Document doc = s.readData();
             outWriter.println("measurement");
@@ -100,11 +99,7 @@ public class Client {
         return "ok";
     }
 
-    protected Map<String, Sensor> getSensors() {
-        return sensors;
-    }
-
-    protected String addSensors(String type) {
+    protected String addSensors(String type) throws ConcurrentModificationException {
         if (type.equals("Temperature")){
             sensors.put(type, new TemperatureSensor());
         }
@@ -117,7 +112,7 @@ public class Client {
 
         return type + " sensor turned on!";
     }
-    protected String removeSensors(String type) {
+    protected String removeSensors(String type) throws ConcurrentModificationException {
         for (String k:sensors.keySet()){
             if (k.equals(type)){
                 sensors.remove(type);

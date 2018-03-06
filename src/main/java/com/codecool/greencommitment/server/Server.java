@@ -16,16 +16,14 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Server {
 
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
+    private Thread stopper = new Thread(new ServerStopper());
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -47,6 +45,7 @@ public class Server {
                 e.printStackTrace();
             }
         }
+        stopper.start();
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
@@ -54,13 +53,13 @@ public class Server {
                 clientSocket = serverSocket.accept();
                 new Thread(new Protocol(clientSocket)).start();
             } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(0);
+                System.out.println("Could not establish connection");
             }
         }
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
+        System.out.print("Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
 
@@ -73,7 +72,8 @@ public class Server {
             Element client = (Element) clients.item(i);
             HashMap<Integer, List<Element>> innerMap = new HashMap<>();
             readData.put(Integer.parseInt(client.getAttribute("id")), innerMap);
-            NodeList sensors = client.getElementsByTagName("Sensor");
+            Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
+            NodeList sensors = sensorsE.getElementsByTagName("Sensor");
             for (int j = 0; j < sensors.getLength(); j++) {
                 Element sensor = (Element) sensors.item(j);
                 List<Element> measurementsList = new ArrayList<>();
@@ -86,6 +86,7 @@ public class Server {
             }
         }
         data = readData;
+        System.out.println("Data loaded");
     }
 
     class Protocol implements Runnable {
@@ -118,7 +119,6 @@ public class Server {
                 System.out.println("Identification failed");
                 return;
             }
-            System.out.println("Client " + clientId + " logged in");
             String in;
             while (true) {
                 try {
@@ -130,11 +130,6 @@ public class Server {
                     switch (in) {
                         case "measurement":
                             readMeasurement();
-                            try {
-                                saveXml();
-                            } catch (TransformerException | ParserConfigurationException e) {
-                                e.printStackTrace();
-                            }
                             break;
                         case "request":
                             sendData();
@@ -151,46 +146,6 @@ public class Server {
             }
         }
 
-        private void saveXml() throws TransformerException, ParserConfigurationException {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.newDocument();
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(xmlFilePath));
-
-            Element rootElement = doc.createElement("Clients");
-            doc.appendChild(rootElement);
-
-            for (Integer clientId : data.keySet()) {
-                Element client = doc.createElement("Client");
-                client.setAttribute("id", clientId.toString());
-                rootElement.appendChild(client);
-
-                Element sensors = doc.createElement("Sensors");
-                client.appendChild(sensors);
-
-                HashMap<Integer, List<Element>> clientData = data.get(clientId);
-                Element sensor;
-                for (Integer sensorId : clientData.keySet()) {
-                    sensor = doc.createElement("Sensor");
-                    sensor.setAttribute("id", sensorId.toString());
-                    sensors.appendChild(sensor);
-                    for (Element measurement : clientData.get(sensorId)) {
-                        Element measurementCopy = doc.createElement("measurement");
-                        measurementCopy.setAttribute("id", measurement.getAttribute("id"));
-                        measurementCopy.setAttribute("time", measurement.getAttribute("time"));
-                        measurementCopy.setAttribute("value", measurement.getAttribute("value"));
-                        measurementCopy.setAttribute("type", measurement.getAttribute("type"));
-
-                        sensor.appendChild(measurementCopy);
-                    }
-                }
-            }
-            transformer.transform(source, result);
-        }
-
         private void identify() throws NumberFormatException {
             try {
                 String in = inReader.readLine();
@@ -204,6 +159,7 @@ public class Server {
                 }
                 clientId = id;
                 outWriter.println("ok");
+                System.out.println("Client " + clientId + " logged in");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -217,7 +173,7 @@ public class Server {
             clientId = id;
             data.put(id, new HashMap<>());
             outWriter.println(id);
-            System.out.println("Assigned new id " + id + " to client");
+            System.out.println("New client " + clientId + " logged in");
         }
 
         private void sendData() {
@@ -249,6 +205,60 @@ public class Server {
             }
             System.out.println(", from sensor " + id);
             data.get(clientId).get(id).add(measurement);
+        }
+    }
+
+    class ServerStopper implements Runnable {
+
+        public void run() {
+            if (new Scanner(System.in).hasNext()) {
+                try {
+                    saveXml();
+                } catch (TransformerException | ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+                System.exit(0);
+            }
+        }
+
+        private void saveXml() throws TransformerException, ParserConfigurationException {
+            System.out.print("Saving data... ");
+            DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = docBuilder.newDocument();
+
+            Element rootElement = doc.createElement("Clients");
+            doc.appendChild(rootElement);
+
+            for (Integer clientId : data.keySet()) {
+                Element client = doc.createElement("Client");
+                client.setAttribute("id", clientId.toString());
+                rootElement.appendChild(client);
+
+                Element sensors = doc.createElement("Sensors");
+                client.appendChild(sensors);
+
+                HashMap<Integer, List<Element>> clientData = data.get(clientId);
+                Element sensor;
+                for (Integer sensorId : clientData.keySet()) {
+                    sensor = doc.createElement("Sensor");
+                    sensor.setAttribute("id", sensorId.toString());
+                    sensors.appendChild(sensor);
+                    for (Element measurement : clientData.get(sensorId)) {
+                        Element measurementCopy = doc.createElement("measurement");
+                        measurementCopy.setAttribute("id", measurement.getAttribute("id"));
+                        measurementCopy.setAttribute("time", measurement.getAttribute("time"));
+                        measurementCopy.setAttribute("value", measurement.getAttribute("value"));
+                        measurementCopy.setAttribute("type", measurement.getAttribute("type"));
+
+                        sensor.appendChild(measurementCopy);
+                    }
+                }
+            }
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(xmlFilePath));
+            transformer.transform(source, result);
+            System.out.println("Data saved");
         }
     }
 }
