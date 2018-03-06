@@ -2,6 +2,9 @@ package com.codecool.greencommitment.server;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,7 +39,11 @@ public class Server {
             System.exit(1);
         }
         if (new File(xmlFilePath).exists()) {
-            loadXml();
+            try {
+                loadXml();
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                e.printStackTrace();
+            }
         }
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
@@ -51,8 +58,32 @@ public class Server {
         }
     }
 
-    private void loadXml() {
+    private void loadXml() throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = db.parse(xmlFilePath);
 
+        HashMap<Integer, HashMap<Integer, List<Element>>> readData = new HashMap<>();
+
+
+        Element rootElement = (Element) doc.getElementsByTagName("Clients").item(0);
+        NodeList clients = rootElement.getElementsByTagName("Client");
+        for (int i = 0; i < clients.getLength(); i++) {
+            Element client = (Element) clients.item(i);
+            HashMap<Integer, List<Element>> innerMap = new HashMap<>();
+            readData.put(Integer.parseInt(client.getAttribute("id")), innerMap);
+            NodeList sensors = client.getElementsByTagName("Sensor");
+            for (int j = 0; j < sensors.getLength(); j++) {
+                Element sensor = (Element) sensors.item(j);
+                List<Element> measurementsList = new ArrayList<>();
+                innerMap.put(Integer.parseInt(sensor.getAttribute("id")), measurementsList);
+                NodeList measurements = sensor.getElementsByTagName("measurement");
+                for (int k = 0; k < measurements.getLength(); k++) {
+                    Element measurement = (Element) measurements.item(k);
+                    measurementsList.add(measurement);
+                }
+            }
+        }
+        data = readData;
     }
 
     class Protocol implements Runnable {
