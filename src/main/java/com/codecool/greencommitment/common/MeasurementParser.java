@@ -26,6 +26,9 @@ public class MeasurementParser {
             System.exit(1);
         }
 
+        //Name the document
+        //document.createElementNS("codecool.com", "measurement");
+
         // Measurement / root
         Element root = document.createElement("measurement");
         root.setAttribute("id", Integer.toString(id));
