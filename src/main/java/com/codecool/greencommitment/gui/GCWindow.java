@@ -90,6 +90,9 @@ public class GCWindow extends Application {
 
     @Override
     public void stop() {
-        server.exit();
+        if (server != null) {
+            server.exit();
+        }
+        // if(client != null) { }
     }
 }
