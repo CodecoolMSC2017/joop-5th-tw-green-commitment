@@ -26,7 +26,7 @@ public class ServerProtocol implements Runnable {
     private Logger logger;
     private List<String> loggedInClients;
 
-    public ServerProtocol(
+    ServerProtocol(
             Socket clientSocket,
             HashMap<String, HashMap<Integer, List<Element>>> data,
             Logger logger,
@@ -60,23 +60,11 @@ public class ServerProtocol implements Runnable {
             e.printStackTrace();
             return;
         }
-        String in;
+        boolean shouldReturn;
         while (true) {
             try {
-                in = inReader.readLine();
-                if (in == null) {
-                    logger.log("Server", "Client " + clientId + " disconnected");
-                    loggedInClients.remove(clientId);
-                    return;
-                }
-                if ("measurement".equals(in)) {
-                    readMeasurement();
-                } else if ("request".equals(in.split(" ")[0])) {
-                    sendSensorData(in.split(" ")[1]);
-
-                } else if ("logout".equals(in)) {
-                    logger.log("Server", "Client " + clientId + " logged out");
-                    loggedInClients.remove(clientId);
+                shouldReturn = readClientCommand();
+                if (shouldReturn) {
                     return;
                 }
             } catch (IOException | NullPointerException e) {
@@ -84,6 +72,28 @@ public class ServerProtocol implements Runnable {
                 return;
             }
         }
+    }
+
+    private boolean readClientCommand() throws IOException {
+        String in = inReader.readLine();
+        if (in == null) {
+            logger.log("Server", "Client " + clientId + " disconnected");
+            loggedInClients.remove(clientId);
+            return true;
+        }
+        if ("measurement".equals(in)) {
+            readMeasurement();
+        } else if ("logout".equals(in)) {
+            logger.log("Server", "Client " + clientId + " logged out");
+            loggedInClients.remove(clientId);
+            return true;
+        } else {
+            String[] splitInput = in.split(" ");
+            if ("request".equals(splitInput[0])) {
+                sendSensorData(splitInput[1]);
+            }
+        }
+        return false;
     }
 
     private boolean alreadyLoggedIn() {
@@ -129,13 +139,12 @@ public class ServerProtocol implements Runnable {
             outWriter.println("ok");
 
             //Convert to byte array, then send the byte array as an object! (No EOF problem this way :D)
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "jpg", baos);
-            byte[] imageInByte=baos.toByteArray();
-            outputStream.writeObject(imageInByte);
+            ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+            ImageIO.write(image, "jpg", byteArray);
+            outputStream.writeObject(byteArray.toByteArray());
 
             outWriter.println("ok");
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.log("Server", "Error creating linechart");
             outWriter.println("error");
         }
@@ -158,12 +167,16 @@ public class ServerProtocol implements Runnable {
         }
         outWriter.println("ok");
 
+        processMeasurement(document);
+    }
+
+    private void processMeasurement(Document document) {
         Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
         int id = Integer.parseInt(measurement.getAttribute("id"));
         if (!data.get(clientId).containsKey(id)) {
             data.get(clientId).put(id, new ArrayList<>());
         }
-        logger.log("Client " + clientId, "Sent data from sensor " + id);
+        logger.log("Client " + clientId, "Data sent from sensor " + id);
         data.get(clientId).get(id).add(measurement);
     }
 }
