@@ -2,7 +2,9 @@ package com.codecool.greencommitment.server;
 
 import com.codecool.greencommitment.gui.scenes.ServerScene;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 
 public class Logger {
 
@@ -20,10 +22,11 @@ public class Logger {
     }
 
     private void logToTerminal(String source, String message) {
-        System.out.println(String.format("%s:%s:%s - (%s) >>> %s",
-                LocalDateTime.now().getHour(),
-                LocalDateTime.now().getMinute(),
-                LocalDateTime.now().getSecond(),
+        SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+
+        System.out.println(String.format("%s - (%s) >>> %s",
+                date.format(calendar.getTime()),
                 source, message));
     }
 }
