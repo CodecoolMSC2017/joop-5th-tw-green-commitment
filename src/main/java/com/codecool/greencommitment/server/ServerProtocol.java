@@ -60,7 +60,6 @@ public class ServerProtocol implements Runnable {
                 if (in == null) {
                     logger.log("Server", "Client " + clientId + " disconnected");
                     loggedInClients.remove(clientId);
-                    System.out.println(Arrays.toString(loggedInClients.toArray()));
                     return;
                 }
                 switch (in) {
@@ -73,7 +72,6 @@ public class ServerProtocol implements Runnable {
                     case "logout":
                         logger.log("Server", "Client " + clientId + " logged out");
                         loggedInClients.remove(clientId);
-                        System.out.println(Arrays.toString(loggedInClients.toArray()));
                         return;
                 }
             } catch (IOException | NullPointerException e) {
@@ -92,13 +90,11 @@ public class ServerProtocol implements Runnable {
         if (id.equals("0")) {
             clientId = generateNewId();
             logger.log("Server", "New client " + clientId + " logged in");
-            System.out.println(Arrays.toString(loggedInClients.toArray()));
             return;
         }
         clientId = id;
         if (alreadyLoggedIn()) {
             outWriter.println("error");
-            System.out.println(Arrays.toString(loggedInClients.toArray()));
             throw new AlreadyLoggedInException();
         }
         if (!data.containsKey(id)) {
@@ -107,7 +103,6 @@ public class ServerProtocol implements Runnable {
         } else {
             logger.log("Server", "Client " + clientId + " logged in");
         }
-        System.out.println(Arrays.toString(loggedInClients.toArray()));
         loggedInClients.add(String.valueOf(clientId));
         outWriter.println("ok");
     }
