@@ -20,9 +20,11 @@ public class Server {
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
     private ServerInputHandler serverInputHandler = new ServerInputHandler(data, xmlFilePath);
     private Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, 20));
+    private Logger logger;
 
-    public Server(int portNumber) {
+    public Server(int portNumber, Logger logger) {
         this.portNumber = portNumber;
+        this.logger = logger;
     }
 
     public void start() {
@@ -30,7 +32,7 @@ public class Server {
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
-            System.out.println("Error creating server socket");
+            logger.log("Error creating server socket");
             e.printStackTrace();
             System.exit(1);
         }
@@ -38,22 +40,22 @@ public class Server {
             try {
                 loadXml();
             } catch (ParserConfigurationException | IOException | SAXException e) {
-                System.out.println("Loading data failed");
+                logger.log("Loading data failed");
             }
         } else {
-            System.out.println("Could not find previous results");
+            logger.log("Could not find previous results");
         }
         Thread serverInputHandlerThread = new Thread(serverInputHandler);
         serverInputHandlerThread.start();
         autosaver.start();
-        System.out.println("Server started on port " + portNumber);
+        logger.log("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
             try {
                 clientSocket = serverSocket.accept();
                 new Thread(new ServerProtocol(clientSocket, data)).start();
             } catch (IOException e) {
-                System.out.println("Could not establish connection");
+                logger.log("Could not establish connection");
             }
         }
     }
@@ -63,7 +65,7 @@ public class Server {
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
-        System.out.print("Loading data... ");
+        logger.log("Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
 
@@ -90,7 +92,7 @@ public class Server {
             }
         }
         data = readData;
-        System.out.println("Data loaded");
+        logger.log("Data loaded");
     }
 
 }

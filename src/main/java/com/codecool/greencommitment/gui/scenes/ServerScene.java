@@ -65,7 +65,7 @@ public class ServerScene extends Scene {
 
 
     // Method(s)
-    private void consoleWrite(String source, String text) {
+    public void consoleWrite(String source, String text) {
         consoleField.setText(consoleField.getText() +
                 String.format("%s:%s:%s - (%s) >>> %s\n",
                         LocalDateTime.now().getHour(),
