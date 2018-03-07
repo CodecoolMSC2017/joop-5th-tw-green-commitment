@@ -29,6 +29,7 @@ public class CreateServerScene extends Scene {
         pane.setVgap(10);
         setRoot(pane);
 
+        pane.getChildren().add(GUIMaker.makeText("Port"));
         serverPortField = new TextField();
         serverPortField.setText("7777");
         pane.getChildren().add(serverPortField);

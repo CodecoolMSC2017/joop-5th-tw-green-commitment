@@ -31,15 +31,17 @@ public class CreateClientScene extends Scene {
         pane.setVgap(10);
         setRoot(pane);
 
+        pane.getChildren().add(GUIMaker.makeText("IP"));
         serverIpField = new TextField();
         serverIpField.setText("127.0.0.1");
         pane.getChildren().add(serverIpField);
 
+        pane.getChildren().add(GUIMaker.makeText("Port"));
         serverPortField = new TextField();
         serverPortField.setText("7777");
         pane.getChildren().add(serverPortField);
 
-        serverConnectButton = GUIMaker.makeButton("Connect to server", 200, 50);
+        serverConnectButton = GUIMaker.makeButton("Connect", 200, 50);
         serverConnectButton.setDefaultButton(true);
         serverConnectButton.setOnMouseClicked(event ->
                 {
