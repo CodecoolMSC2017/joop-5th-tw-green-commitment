@@ -45,7 +45,7 @@ public class ServerInputHandler implements Runnable {
         }
     }
 
-    private void exit() {
+    void exit() {
         save();
         System.exit(0);
     }

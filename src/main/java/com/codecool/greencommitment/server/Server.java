@@ -18,7 +18,7 @@ public class Server {
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
-    private Thread serverInputHandler = new Thread(new ServerInputHandler(data, xmlFilePath));
+    private ServerInputHandler serverInputHandler = new ServerInputHandler(data, xmlFilePath);
     private Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, 20));
 
     public Server(int portNumber) {
@@ -43,7 +43,8 @@ public class Server {
         } else {
             System.out.println("Could not find previous results");
         }
-        serverInputHandler.start();
+        Thread serverInputHandlerThread = new Thread(serverInputHandler);
+        serverInputHandlerThread.start();
         autosaver.start();
         System.out.println("Server started on port " + portNumber);
         Socket clientSocket;
@@ -55,6 +56,10 @@ public class Server {
                 System.out.println("Could not establish connection");
             }
         }
+    }
+
+    public void exit() {
+        serverInputHandler.exit();
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
