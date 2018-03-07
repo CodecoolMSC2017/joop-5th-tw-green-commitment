@@ -15,14 +15,14 @@ public class ChartGenerator {
 
     private final String filePath = System.getProperty("user.home");
 
-    public void LineChart(
-            String title,
-            String categoryLabel,
-            String valueLabel,
+    public File lineChart(
             String sensorID,
-            List<Element> measurements,
-            int windowWidth,
-            int windowHeight) throws IOException {
+            List<Element> measurements) throws IOException {
+        String title = "Measurements";
+        String categoryLabel = "Time";
+        String valueLabel = "Test";
+        int windowWidth = 640;
+        int windowHeight = 480;
         DefaultCategoryDataset line_chart_dataset = new DefaultCategoryDataset();
 
         for (Element measurement : measurements) {
@@ -43,5 +43,7 @@ public class ChartGenerator {
 
         File lineChart = new File(filePath + "/" + sensorID + "LineChart.jpeg");
         ChartUtilities.saveChartAsJPEG(lineChart, lineChartObject, windowWidth, windowHeight);
+
+        return new File(filePath + "/" + sensorID + "LineChart.jpeg");
     }
 }
