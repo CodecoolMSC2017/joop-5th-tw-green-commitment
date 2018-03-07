@@ -10,10 +10,10 @@ public class Logger {
         this.serverScene = serverScene;
     }
 
-    public void log(String message) {
+    public void log(String source, String message) {
         System.out.println(message);
         if (serverScene != null) {
-            serverScene.consoleWrite("Server", message);
+            serverScene.consoleWrite(source, message);
         }
     }
 }

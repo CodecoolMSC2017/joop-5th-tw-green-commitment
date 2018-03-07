@@ -28,16 +28,16 @@ public class AutoSaver extends ServerInputHandler {
                 save();
             }
         } catch (InterruptedException e) {
-            logger.log("Autosaver stopped");
+            logger.log("Autosaver", "Autosaving stopped");
         }
     }
 
     private void save() {
         try {
             saveXml();
-            logger.log("Data autosaved");
+            logger.log("Autosaver", "Data saved");
         } catch (TransformerException | ParserConfigurationException e) {
-            logger.log("Autosaving failed");
+            logger.log("Autosaver", "Autosaving failed");
         }
     }
 }

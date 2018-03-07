@@ -44,7 +44,7 @@ public class ServerInputHandler implements Runnable {
                     case "exit":
                         exit();
                     default:
-                        logger.log("Unknown command: " + command);
+                        logger.log("Server", "Unknown command: " + command);
                 }
             }
         }
@@ -58,9 +58,9 @@ public class ServerInputHandler implements Runnable {
     private void save() {
         try {
             saveXml();
-            logger.log("Data saved");
+            logger.log("Server", "Data saved");
         } catch (TransformerException | ParserConfigurationException e) {
-            logger.log("Saving failed");
+            logger.log("Server", "Saving failed");
         }
     }
 
