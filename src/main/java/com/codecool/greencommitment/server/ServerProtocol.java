@@ -1,8 +1,11 @@
 package com.codecool.greencommitment.server;
 
+import com.codecool.greencommitment.common.ChartGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.jfree.data.category.CategoryDataset;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -62,17 +65,15 @@ public class ServerProtocol implements Runnable {
                     loggedInClients.remove(clientId);
                     return;
                 }
-                switch (in) {
-                    case "measurement":
-                        readMeasurement();
-                        break;
-                    case "request":
-                        sendData();
-                        break;
-                    case "logout":
-                        logger.log("Server", "Client " + clientId + " logged out");
-                        loggedInClients.remove(clientId);
-                        return;
+                if ("measurement".equals(in)) {
+                    readMeasurement();
+                } else if ("request".equals(in.split(" ")[0])) {
+                    sendSensorData(in.split(" ")[1]);
+
+                } else if ("logout".equals(in)) {
+                    logger.log("Server", "Client " + clientId + " logged out");
+                    loggedInClients.remove(clientId);
+                    return;
                 }
             } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
@@ -118,8 +119,16 @@ public class ServerProtocol implements Runnable {
         return String.valueOf(id);
     }
 
-    private void sendData() {
-        outWriter.println(data.get(clientId));
+    private void sendSensorData(String sensorId) {
+        try {
+            BufferedImage image = new ChartGenerator().lineChart(sensorId, data.get(clientId).get(Integer.parseInt(sensorId)));
+            outWriter.println("ok");
+            outputStream.writeObject(image);
+            outWriter.println("ok");
+        } catch (Exception e) {
+            logger.log("Server", "Error creating linechart");
+            outWriter.println("error");
+        }
     }
 
     private void readMeasurement() {
