@@ -22,8 +22,11 @@ public class Server {
     private Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, 20));
     private Logger logger;
 
-    public Server(int portNumber, Logger logger) {
+    public Server(int portNumber) {
         this.portNumber = portNumber;
+    }
+
+    public void setLogger(Logger logger) {
         this.logger = logger;
     }
 
