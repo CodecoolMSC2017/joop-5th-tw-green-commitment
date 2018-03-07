@@ -15,7 +15,7 @@ public class Client {
     private List<Sensor> sensors;
     private int dataSendInterval = 5;
 
-    private boolean isTransferring;
+    private volatile boolean isTransferring;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private BufferedReader inReader;
