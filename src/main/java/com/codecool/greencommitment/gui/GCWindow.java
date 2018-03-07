@@ -1,6 +1,7 @@
 package com.codecool.greencommitment.gui;
 
 import com.codecool.greencommitment.client.Client;
+import com.codecool.greencommitment.gui.scenes.*;
 import com.codecool.greencommitment.server.Server;
 import javafx.application.Application;
 import javafx.scene.Scene;
