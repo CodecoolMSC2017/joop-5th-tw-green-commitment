@@ -4,15 +4,16 @@ import org.w3c.dom.Document;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private String clientId;
     private Socket socket;
-    private Map<String, Sensor> sensors;
+    private List<Sensor> sensors;
+    private int dataSendInterval = 5;
 
+    private boolean isTransferring;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private BufferedReader inReader;
@@ -21,7 +22,10 @@ public class Client {
     // Constructor(s)
     public Client(int port, String host) throws IOException {
         socket = new Socket(host, port);
-        sensors = new HashMap<>();
+        sensors = new ArrayList<>();
+        sensors.add(new TemperatureSensor());
+        sensors.add(new AirPressureSensor());
+        sensors.add(new WindSpeedSensor());
     }
 
     public String start() throws IOException {
@@ -38,6 +42,23 @@ public class Client {
     }
 
     // Method(s)
+
+    // Getters and setters
+    public List<Sensor> getSensors() {
+        return sensors;
+    }
+
+    public void setDataSendInterval(int dataSendInterval) {
+        this.dataSendInterval = dataSendInterval;
+    }
+
+    public boolean isTransferring() {
+        return isTransferring;
+    }
+
+    public void setIsTransferring(boolean transferring) {
+        isTransferring = transferring;
+    }
 
     //Login handling starts here
     private boolean handleLogin() throws IOException {
@@ -88,8 +109,26 @@ public class Client {
         return "Logged out!";
     }
 
-    protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
-        for (Sensor s:sensors.values()){
+    public Thread dataTransfer = new Thread(){
+        public void run() {
+            while(isTransferring){
+                try {
+                    sendData();
+                    TimeUnit.SECONDS.sleep(dataSendInterval);
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
+                } catch (IOException | NullPointerException ioe) {
+                    System.out.println("Couldn't send data to server! Something wrong on that side! Exiting!");
+                    System.exit(1);
+                } catch (ConcurrentModificationException cme){
+                    System.out.println("Try again please!");
+                }
+            }
+        }
+    };
+
+    private String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
+        for (Sensor s:sensors){
             Document doc = s.readData();
             outWriter.println("measurement");
             if (inReader.readLine().equals("ok")) {
@@ -102,7 +141,7 @@ public class Client {
         return "ok";
     }
 
-    protected String addSensors(String type) throws ConcurrentModificationException {
+    /*protected String addSensors(String type) throws ConcurrentModificationException {
         if (type.equals("Temperature")){
             sensors.put(type, new TemperatureSensor());
         }
@@ -122,6 +161,6 @@ public class Client {
             }
         }
         return type + " sensor turned off!";
-    }
+    }*/
 }
 
