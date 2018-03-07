@@ -15,9 +15,14 @@ public class ChartGenerator {
 
     private final String filePath = System.getProperty("user.home");
 
-    public void LineChart(String title, String categoryLabel, String valueLabel,
-                          String sensorID, List<Element> measurements,
-                          int windowWidth, int windowHeight) throws IOException {
+    public void LineChart(
+            String title,
+            String categoryLabel,
+            String valueLabel,
+            String sensorID,
+            List<Element> measurements,
+            int windowWidth,
+            int windowHeight) throws IOException {
         DefaultCategoryDataset line_chart_dataset = new DefaultCategoryDataset();
 
         for (Element measurement : measurements) {
@@ -27,8 +32,14 @@ public class ChartGenerator {
         }
 
         JFreeChart lineChartObject = ChartFactory.createLineChart(
-                title, categoryLabel, valueLabel, line_chart_dataset, PlotOrientation.VERTICAL,
-                true, true, false);
+                title,
+                categoryLabel,
+                valueLabel,
+                line_chart_dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false);
 
         File lineChart = new File(filePath + "/" + sensorID + "LineChart.jpeg");
         ChartUtilities.saveChartAsJPEG(lineChart, lineChartObject, windowWidth, windowHeight);
