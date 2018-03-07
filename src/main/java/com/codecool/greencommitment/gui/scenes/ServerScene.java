@@ -18,15 +18,15 @@ public class ServerScene extends Scene {
     private FlowPane pane;
 
 
-    TabPane tabPane;
+    private TabPane tabPane;
 
     // Console tab
-    Tab consoleTab;
-    Text consoleField;
+    private Tab consoleTab;
+    private Text consoleField;
 
     // Results tab
-    Tab resultsTab;
-    ImageView resultImg;
+    private Tab resultsTab;
+    private ImageView resultImg;
 
     public ServerScene(Parent root, double width, double height, GCWindow window) {
         super(root, width, height);
