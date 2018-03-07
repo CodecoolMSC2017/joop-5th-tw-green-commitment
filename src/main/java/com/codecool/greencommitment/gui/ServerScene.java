@@ -60,16 +60,6 @@ public class ServerScene extends Scene {
         pane.getChildren().add(tabPane);
 
         consoleWrite("Server", "Server started.");
-
-        // Just for testing the console
-        new Thread(() -> {
-            while (true) {
-                try {
-                    consoleWrite("User124", "Sent a data...");
-                    Thread.sleep(1000);
-                } catch (Exception e) {}
-            }
-        }).start();
     }
 
 
