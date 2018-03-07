@@ -16,9 +16,10 @@ import java.util.*;
 public class Server {
 
     private int portNumber;
-    private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
+    private HashMap<String, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
     private Logger logger;
+    private List<String> loggedInClients = new ArrayList<>();
     private ServerInputHandler serverInputHandler;
 
     public Server(int portNumber) {
@@ -30,6 +31,9 @@ public class Server {
     }
 
     public void start() {
+        if (logger == null) {
+            logger = new Logger(null);
+        }
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(portNumber);
@@ -60,7 +64,7 @@ public class Server {
         while (true) {
             try {
                 clientSocket = serverSocket.accept();
-                new Thread(new ServerProtocol(clientSocket, data, logger)).start();
+                new Thread(new ServerProtocol(clientSocket, data, logger, loggedInClients)).start();
             } catch (IOException e) {
                 logger.log("Server", "Could not establish connection");
             }
@@ -76,7 +80,7 @@ public class Server {
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
 
-        HashMap<Integer, HashMap<Integer, List<Element>>> readData = new HashMap<>();
+        HashMap<String, HashMap<Integer, List<Element>>> readData = new HashMap<>();
 
 
         Element rootElement = (Element) doc.getElementsByTagName("Clients").item(0);
@@ -84,17 +88,19 @@ public class Server {
         for (int i = 0; i < clients.getLength(); i++) {
             Element client = (Element) clients.item(i);
             HashMap<Integer, List<Element>> innerMap = new HashMap<>();
-            readData.put(Integer.parseInt(client.getAttribute("id")), innerMap);
-            Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
-            NodeList sensors = sensorsE.getElementsByTagName("Sensor");
-            for (int j = 0; j < sensors.getLength(); j++) {
-                Element sensor = (Element) sensors.item(j);
-                List<Element> measurementsList = new ArrayList<>();
-                innerMap.put(Integer.parseInt(sensor.getAttribute("id")), measurementsList);
-                NodeList measurements = sensor.getElementsByTagName("measurement");
-                for (int k = 0; k < measurements.getLength(); k++) {
-                    Element measurement = (Element) measurements.item(k);
-                    measurementsList.add(measurement);
+            readData.put(client.getAttribute("id"), innerMap);
+            if (client.hasChildNodes()) {
+                Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
+                NodeList sensors = sensorsE.getElementsByTagName("Sensor");
+                for (int j = 0; j < sensors.getLength(); j++) {
+                    Element sensor = (Element) sensors.item(j);
+                    List<Element> measurementsList = new ArrayList<>();
+                    innerMap.put(Integer.parseInt(sensor.getAttribute("id")), measurementsList);
+                    NodeList measurements = sensor.getElementsByTagName("measurement");
+                    for (int k = 0; k < measurements.getLength(); k++) {
+                        Element measurement = (Element) measurements.item(k);
+                        measurementsList.add(measurement);
+                    }
                 }
             }
         }

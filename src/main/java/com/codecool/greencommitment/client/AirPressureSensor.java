@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 class AirPressureSensor extends Sensor {
 
     AirPressureSensor(){
+        this.name = "Air pressure sensor";
         this.id = 1587;
         this.type = "kPa";
     }

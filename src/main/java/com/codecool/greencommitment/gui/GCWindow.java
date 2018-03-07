@@ -37,18 +37,27 @@ public class GCWindow extends Application {
     }
 
 
-    // Method(s)
-    public boolean setServer(int port) {
+    // Getter(s)
+    public Server getServer() {
+        return server;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+
+    // Setter(s)
+    public void setServer(int port) {
         server = new Server(port);
-        new Thread(()-> server.start()).start();
-        return true;
     }
 
-    public boolean setClient(int port, String ip) throws IOException {
+    public void setClient(int port, String ip) throws IOException {
         client = new Client(port, ip);
-        return true;
     }
 
+
+    // Method(s)
     public void changeScene(GCScene choice) {
         switch (choice) {
             case Create_Server:
@@ -71,7 +80,8 @@ public class GCWindow extends Application {
                 primaryStage.setTitle("GC - Client window");
                 primaryStage.setScene(scene);
                 break;
-            case Home: default:
+            case Home:
+            default:
                 scene = new HomeScene(root, root.getWidth(), root.getHeight(), this);
                 primaryStage.setScene(scene);
                 break;
@@ -80,6 +90,9 @@ public class GCWindow extends Application {
 
     @Override
     public void stop() {
-        server.exit();
+        if (server != null) {
+            server.exit();
+        }
+        // if(client != null) { }
     }
 }

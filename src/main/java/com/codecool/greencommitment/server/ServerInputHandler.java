@@ -18,12 +18,12 @@ import java.util.Scanner;
 
 public class ServerInputHandler implements Runnable {
 
-    private HashMap<Integer, HashMap<Integer, List<Element>>> data;
+    private HashMap<String, HashMap<Integer, List<Element>>> data;
     private String xmlFilePath;
     protected Logger logger;
 
     public ServerInputHandler(
-            HashMap<Integer, HashMap<Integer, List<Element>>> data,
+            HashMap<String, HashMap<Integer, List<Element>>> data,
             String xmlFilePath,
             Logger logger) {
         this.data = data;
@@ -71,28 +71,30 @@ public class ServerInputHandler implements Runnable {
         Element rootElement = doc.createElement("Clients");
         doc.appendChild(rootElement);
 
-        for (Integer clientId : data.keySet()) {
+        for (String clientId : data.keySet()) {
             Element client = doc.createElement("Client");
-            client.setAttribute("id", clientId.toString());
+            client.setAttribute("id", clientId);
             rootElement.appendChild(client);
 
-            Element sensors = doc.createElement("Sensors");
-            client.appendChild(sensors);
-
             HashMap<Integer, List<Element>> clientData = data.get(clientId);
-            Element sensor;
-            for (Integer sensorId : clientData.keySet()) {
-                sensor = doc.createElement("Sensor");
-                sensor.setAttribute("id", sensorId.toString());
-                sensors.appendChild(sensor);
-                for (Element measurement : clientData.get(sensorId)) {
-                    Element measurementCopy = doc.createElement("measurement");
-                    measurementCopy.setAttribute("id", measurement.getAttribute("id"));
-                    measurementCopy.setAttribute("time", measurement.getAttribute("time"));
-                    measurementCopy.setAttribute("value", measurement.getAttribute("value"));
-                    measurementCopy.setAttribute("type", measurement.getAttribute("type"));
 
-                    sensor.appendChild(measurementCopy);
+            if (clientData.size() > 0) {
+                Element sensors = doc.createElement("Sensors");
+                client.appendChild(sensors);
+                Element sensor;
+                for (Integer sensorId : clientData.keySet()) {
+                    sensor = doc.createElement("Sensor");
+                    sensor.setAttribute("id", sensorId.toString());
+                    sensors.appendChild(sensor);
+                    for (Element measurement : clientData.get(sensorId)) {
+                        Element measurementCopy = doc.createElement("measurement");
+                        measurementCopy.setAttribute("id", measurement.getAttribute("id"));
+                        measurementCopy.setAttribute("time", measurement.getAttribute("time"));
+                        measurementCopy.setAttribute("value", measurement.getAttribute("value"));
+                        measurementCopy.setAttribute("type", measurement.getAttribute("type"));
+
+                        sensor.appendChild(measurementCopy);
+                    }
                 }
             }
         }
