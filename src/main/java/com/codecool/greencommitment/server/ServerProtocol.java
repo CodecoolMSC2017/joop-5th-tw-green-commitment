@@ -4,15 +4,14 @@ import com.codecool.greencommitment.common.ChartGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.jfree.data.category.CategoryDataset;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.*;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class ServerProtocol implements Runnable {
 
