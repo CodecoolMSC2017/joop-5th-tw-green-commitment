@@ -44,9 +44,8 @@ public class CreateClientScene extends Scene {
         serverConnectButton.setOnMouseClicked(event ->
                 {
                     try {
-                        if (window.setClient(Integer.parseInt(serverPortField.getText()), serverIpField.getText())) {
-                            window.changeScene(GCScene.Client);
-                        }
+                        window.setClient(Integer.parseInt(serverPortField.getText()), serverIpField.getText());
+                        window.changeScene(GCScene.Client);
                     } catch (IOException e) {
                         GUIMaker.makeAlert("Connect Error", "Could not connect to the server.");
                     }
