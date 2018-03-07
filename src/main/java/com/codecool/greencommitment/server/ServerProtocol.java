@@ -128,12 +128,11 @@ public class ServerProtocol implements Runnable {
             BufferedImage image = new ChartGenerator().lineChart(sensorId, data.get(clientId).get(Integer.parseInt(sensorId)));
             outWriter.println("ok");
 
-            //Possible solution to image send
+            //Convert to byte array, then send the byte array as an object! (No EOF problem this way :D)
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "jpg", baos);
             byte[] imageInByte=baos.toByteArray();
-            outputStream.write(imageInByte);
-            //outputStream.writeObject(image);
+            outputStream.writeObject(imageInByte);
 
             outWriter.println("ok");
         } catch (Exception e) {

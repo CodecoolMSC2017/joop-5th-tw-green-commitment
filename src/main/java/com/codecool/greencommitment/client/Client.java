@@ -186,7 +186,7 @@ public class Client {
 
         outWriter.println("request " + sensorId);
         if (inReader.readLine().equals("ok")) {
-            imageInBytes = inputStream.readAllBytes();
+            imageInBytes = (byte[]) inputStream.readObject();
             picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
             if (inReader.readLine().equals("ok")){
                  return saveImageToDisk(picture, fileName);
