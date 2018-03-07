@@ -60,7 +60,7 @@ public class Server {
         while (true) {
             try {
                 clientSocket = serverSocket.accept();
-                new Thread(new ServerProtocol(clientSocket, data)).start();
+                new Thread(new ServerProtocol(clientSocket, data, logger)).start();
             } catch (IOException e) {
                 logger.log("Could not establish connection");
             }
