@@ -12,10 +12,14 @@ public abstract class Sensor{
     private boolean isStarted;
 
     // Method(s)
-    public abstract Document readData();
 
+    //Getters and Setters
     public String getName() {
         return name;
+    }
+
+    public boolean isStarted() {
+        return isStarted;
     }
 
     public String startStopSensor() {
@@ -27,6 +31,9 @@ public abstract class Sensor{
             return name + " started!";
         }
     }
+
+    //Rest of stuff
+    public abstract Document readData();
 
     double generateRandomNumber(double minNumber, double maxNumber){
         return ThreadLocalRandom.current().nextDouble(minNumber, maxNumber);
