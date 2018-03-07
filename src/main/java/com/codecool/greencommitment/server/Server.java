@@ -34,7 +34,7 @@ public class Server {
         try {
             serverSocket = new ServerSocket(portNumber);
         } catch (IOException e) {
-            logger.log("Error creating server socket");
+            logger.log("Server", "Error creating server socket");
             e.printStackTrace();
             System.exit(1);
         }
@@ -42,10 +42,10 @@ public class Server {
             try {
                 loadXml();
             } catch (ParserConfigurationException | IOException | SAXException e) {
-                logger.log("Loading data failed");
+                logger.log("Server", "Loading data failed");
             }
         } else {
-            logger.log("Could not find previous results");
+            logger.log("Server", "Could not find previous results");
         }
         ServerInputHandler serverInputHandler = new ServerInputHandler(data, xmlFilePath, logger);
         this.serverInputHandler = serverInputHandler;
@@ -55,14 +55,14 @@ public class Server {
         Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, logger, 20));
         autosaver.start();
 
-        logger.log("Server started on port " + portNumber);
+        logger.log("Server", "Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {
             try {
                 clientSocket = serverSocket.accept();
-                new Thread(new ServerProtocol(clientSocket, data)).start();
+                new Thread(new ServerProtocol(clientSocket, data, logger)).start();
             } catch (IOException e) {
-                logger.log("Could not establish connection");
+                logger.log("Server", "Could not establish connection");
             }
         }
     }
@@ -72,7 +72,7 @@ public class Server {
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
-        logger.log("Loading data... ");
+        logger.log("Server", "Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
 
@@ -99,7 +99,7 @@ public class Server {
             }
         }
         data = readData;
-        logger.log("Data loaded");
+        logger.log("Server", "Data loaded");
     }
 
 }

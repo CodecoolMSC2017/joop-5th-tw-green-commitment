@@ -19,10 +19,15 @@ public class ServerProtocol implements Runnable {
     private PrintWriter outWriter;
     private int clientId;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data;
+    private Logger logger;
 
-    public ServerProtocol(Socket clientSocket, HashMap<Integer, HashMap<Integer, List<Element>>> data) {
+    public ServerProtocol(
+            Socket clientSocket,
+            HashMap<Integer, HashMap<Integer, List<Element>>> data,
+            Logger logger) {
         this.clientSocket = clientSocket;
         this.data = data;
+        this.logger = logger;
     }
 
     public void run() {
@@ -32,14 +37,14 @@ public class ServerProtocol implements Runnable {
             inReader = new BufferedReader(new InputStreamReader(inputStream));
             outWriter = new PrintWriter(outputStream, true);
         } catch (IOException e) {
-            System.out.println("Could not open streams");
+            logger.log("Server", "Could not open streams");
             e.printStackTrace();
             return;
         }
         try {
             identify();
         } catch (NumberFormatException e) {
-            System.out.println("Identification failed");
+            logger.log("Server", "Identification failed");
             return;
         }
         String in;
@@ -47,7 +52,7 @@ public class ServerProtocol implements Runnable {
             try {
                 in = inReader.readLine();
                 if (in == null) {
-                    System.out.println("Client " + clientId + " disconnected");
+                    logger.log("Server", "Client " + clientId + " disconnected");
                     return;
                 }
                 switch (in) {
@@ -58,7 +63,7 @@ public class ServerProtocol implements Runnable {
                         sendData();
                         break;
                     case "logout":
-                        System.out.println("Client " + clientId + " logged out");
+                        logger.log("Server", "Client " + clientId + " logged out");
                         outWriter.println(in);
                         return;
                 }
@@ -75,15 +80,15 @@ public class ServerProtocol implements Runnable {
             int id = Integer.parseInt(in);
             if (id == 0) {
                 clientId = generateNewId();
-                System.out.println("New client " + clientId + " logged in");
+                logger.log("Server", "New client " + clientId + " logged in");
                 return;
             }
             clientId = id;
             if (!data.containsKey(id)) {
                 data.put(id, new HashMap<>());
-                System.out.println("Unknown client " + clientId + " logged in");
+                logger.log("Server", "Unknown client " + clientId + " logged in");
             } else {
-                System.out.println("Client " + clientId + " logged in");
+                logger.log("Server", "Client " + clientId + " logged in");
             }
             outWriter.println("ok");
         } catch (IOException e) {
@@ -111,16 +116,15 @@ public class ServerProtocol implements Runnable {
             outWriter.println("ok");
             document = (Document) inputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error receiving data from client " + clientId);
+            logger.log("Server", "Error receiving data from client " + clientId);
             outWriter.println("error");
             return;
         }
         if (document == null) {
-            System.out.println("Error receiving data from client " + clientId + " : document is null");
+            logger.log("Server", "Error receiving data from client " + clientId + " : document is null");
             outWriter.println("error");
             return;
         }
-        System.out.print("Data received from client " + clientId);
         outWriter.println("ok");
 
         Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
@@ -128,7 +132,7 @@ public class ServerProtocol implements Runnable {
         if (!data.get(clientId).containsKey(id)) {
             data.get(clientId).put(id, new ArrayList<>());
         }
-        System.out.println(", from sensor " + id);
+        logger.log("Client " + clientId, "Sent data from sensor " + id);
         data.get(clientId).get(id).add(measurement);
     }
 }
