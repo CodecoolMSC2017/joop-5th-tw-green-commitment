@@ -1,17 +1,13 @@
 package com.codecool.greencommitment.client;
 
-import org.w3c.dom.Document;
-
 import java.io.*;
 import java.net.Socket;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Client {
     private String clientId;
     private Socket socket;
-    private Map<String, Sensor> sensors;
+    private List<Sensor> sensors;
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -21,7 +17,10 @@ public class Client {
     // Constructor(s)
     public Client(int port, String host) throws IOException {
         socket = new Socket(host, port);
-        sensors = new HashMap<>();
+        sensors = new ArrayList<>();
+        sensors.add(new TemperatureSensor());
+        sensors.add(new AirPressureSensor());
+        sensors.add(new WindSpeedSensor());
     }
 
     public String start() throws IOException {
@@ -38,6 +37,10 @@ public class Client {
     }
 
     // Method(s)
+
+    public List<Sensor> getSensors() {
+        return sensors;
+    }
 
     //Login handling starts here
     private boolean handleLogin() throws IOException {
@@ -88,7 +91,7 @@ public class Client {
         return "Logged out!";
     }
 
-    protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
+    /*protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
         for (Sensor s:sensors.values()){
             Document doc = s.readData();
             outWriter.println("measurement");
@@ -100,9 +103,9 @@ public class Client {
             }
         }
         return "ok";
-    }
+    }*/
 
-    protected String addSensors(String type) throws ConcurrentModificationException {
+    /*protected String addSensors(String type) throws ConcurrentModificationException {
         if (type.equals("Temperature")){
             sensors.put(type, new TemperatureSensor());
         }
@@ -122,6 +125,6 @@ public class Client {
             }
         }
         return type + " sensor turned off!";
-    }
+    }*/
 }
 
