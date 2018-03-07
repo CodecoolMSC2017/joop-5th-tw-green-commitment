@@ -8,6 +8,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Client {
+    private int port;
+    private String host;
+
     private String clientId;
     private Socket socket;
     private List<Sensor> sensors;
@@ -26,6 +29,8 @@ public class Client {
         sensors.add(new TemperatureSensor());
         sensors.add(new AirPressureSensor());
         sensors.add(new WindSpeedSensor());
+        this.port = port;
+        this.host = host;
     }
 
     public String start() throws IOException {
@@ -44,6 +49,14 @@ public class Client {
     // Method(s)
 
     // Getters and setters
+    public int getPort() {
+        return port;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
     public List<Sensor> getSensors() {
         return sensors;
     }
