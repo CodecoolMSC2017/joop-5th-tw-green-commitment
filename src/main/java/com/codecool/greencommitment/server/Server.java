@@ -31,6 +31,9 @@ public class Server {
     }
 
     public void start() {
+        if (logger == null) {
+            logger = new Logger(null);
+        }
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(portNumber);
@@ -73,9 +76,6 @@ public class Server {
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
-        if (logger == null) {
-            logger = new Logger(null);
-        }
         logger.log("Server", "Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
