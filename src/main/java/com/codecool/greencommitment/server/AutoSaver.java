@@ -12,7 +12,7 @@ public class AutoSaver extends ServerInputHandler {
     private int intervals;
 
     public AutoSaver(
-            HashMap<Integer, HashMap<Integer, List<Element>>> data,
+            HashMap<String, HashMap<Integer, List<Element>>> data,
             String xmlFilePath,
             Logger logger,
             int intervals) {
