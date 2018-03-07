@@ -20,6 +20,10 @@ public class GCWindow extends Application {
     Server server;
     Client client;
 
+    public void startWindow() {
+        launch();
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
