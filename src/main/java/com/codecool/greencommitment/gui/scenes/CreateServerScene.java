@@ -38,9 +38,8 @@ public class CreateServerScene extends Scene {
         createServerButton.setOnMouseClicked(event ->
                 {
                     try {
-                        if (window.setServer(Integer.parseInt(serverPortField.getText()))) {
-                            window.changeScene(GCScene.Server);
-                        }
+                        window.setServer(Integer.parseInt(serverPortField.getText()));
+                        window.changeScene(GCScene.Server);
                     } catch (Exception e) {
                         GUIMaker.makeAlert("Server create failed", "Couldn't create server.");
                     }
