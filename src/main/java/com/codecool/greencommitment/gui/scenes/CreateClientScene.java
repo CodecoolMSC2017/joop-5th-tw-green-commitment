@@ -13,8 +13,8 @@ import javafx.scene.layout.FlowPane;
 import java.io.IOException;
 
 public class CreateClientScene extends Scene {
-    GCWindow window;
-    FlowPane pane;
+    private GCWindow window;
+    private FlowPane pane;
 
     private TextField serverIpField, serverPortField;
 
