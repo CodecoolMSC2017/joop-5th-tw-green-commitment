@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 public class WindSpeedSensor extends Sensor {
 
     WindSpeedSensor(){
+        this.name = "Windspeed sensor";
         this.id = 1785;
         this.type = "kph";
     }

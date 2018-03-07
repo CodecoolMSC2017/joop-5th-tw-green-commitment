@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 class TemperatureSensor extends Sensor {
 
     TemperatureSensor(){
+        this.name = "Temperature sensor";
         this.id = 453;
         this.type = "celsius";
     }

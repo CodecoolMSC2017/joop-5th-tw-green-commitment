@@ -38,6 +38,8 @@ public class Client {
     }
 
     // Method(s)
+
+    //Login handling starts here
     private boolean handleLogin() throws IOException {
         String pathToId = System.getProperty("user.home") + "/clientid";
         File idFile = new File(pathToId);
@@ -78,11 +80,12 @@ public class Client {
         clientId = inReader.readLine();
         return clientId;
     }
+    // Login handling closes here
 
-    protected String logOut() throws IOException {
+    protected String logOut(){
         String logOut = "logout";
         outWriter.println(logOut);
-        return inReader.readLine();
+        return "Logged out!";
     }
 
     protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
@@ -103,7 +106,7 @@ public class Client {
         if (type.equals("Temperature")){
             sensors.put(type, new TemperatureSensor());
         }
-        else if (type.equals("Air pressure")){
+        else if (type.equals("AirPressure")){
             sensors.put(type, new AirPressureSensor());
         }
         else if (type.equals("Windspeed")){

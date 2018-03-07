@@ -105,10 +105,10 @@ public class ClientMenu {
         try {
             if (airSens) {
                 airSens = false;
-                System.out.println(client.removeSensors("Air pressure"));
+                System.out.println(client.removeSensors("AirPressure"));
             } else {
                 airSens = true;
-                System.out.println(client.addSensors("Air pressure"));
+                System.out.println(client.addSensors("AirPressure"));
             }
         } catch (ConcurrentModificationException e) {
             System.out.println("Try again please!");
