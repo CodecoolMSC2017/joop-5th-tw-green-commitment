@@ -24,7 +24,7 @@ public class AutoSaver extends ServerInputHandler {
                 save();
             }
         } catch (InterruptedException e) {
-            System.out.println("Autosaver stopped due to interruption");
+            System.out.println("Autosaver stopped");
         }
     }
 

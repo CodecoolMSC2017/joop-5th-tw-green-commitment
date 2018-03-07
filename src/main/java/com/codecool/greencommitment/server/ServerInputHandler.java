@@ -37,13 +37,17 @@ public class ServerInputHandler implements Runnable {
                         save();
                         break;
                     case "exit":
-                        save();
-                        System.exit(0);
+                        exit();
                     default:
                         System.out.println("Unknown command: " + command);
                 }
             }
         }
+    }
+
+    private void exit() {
+        save();
+        System.exit(0);
     }
 
     private void save() {
