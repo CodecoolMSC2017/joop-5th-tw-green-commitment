@@ -129,7 +129,7 @@ public class ClientMenu {
         }
     }
 
-    Thread dataTransfer = new Thread(){
+    private Thread dataTransfer = new Thread(){
         public void run() {
             int interval = 5; //seconds
             while(isTransferring){
