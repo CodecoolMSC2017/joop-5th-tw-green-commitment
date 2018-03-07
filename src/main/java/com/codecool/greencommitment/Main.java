@@ -8,6 +8,7 @@ public class Main {
 
     public static void main(String[] args) {
         if (args.length == 0) {
+            System.out.println("Starting GUI, please wait!");
             new GCWindow().startWindow();
             //new ClientMenu(30000, "192.168.150.35");
         }
