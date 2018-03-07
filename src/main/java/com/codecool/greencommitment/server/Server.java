@@ -26,6 +26,10 @@ public class Server {
         this.portNumber = portNumber;
     }
 
+    public int getPortNumber() {
+        return portNumber;
+    }
+
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
