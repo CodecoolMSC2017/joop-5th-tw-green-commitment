@@ -2,6 +2,8 @@ package com.codecool.greencommitment.client;
 
 import org.w3c.dom.Document;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -109,6 +111,7 @@ public class Client {
         return "Logged out!";
     }
 
+    //Data transfer starts here
     public Thread dataTransfer = new Thread(){
         public void run() {
             while (true) {
@@ -145,26 +148,45 @@ public class Client {
         return "ok";
     }
 
-    /*protected String addSensors(String type) throws ConcurrentModificationException {
-        if (type.equals("Temperature")){
-            sensors.put(type, new TemperatureSensor());
-        }
-        else if (type.equals("AirPressure")){
-            sensors.put(type, new AirPressureSensor());
-        }
-        else if (type.equals("Windspeed")){
-            sensors.put(type, new WindSpeedSensor());
+    public String getChartFromServer(String type) throws IOException, ClassNotFoundException {
+        BufferedImage picture;
+        String transferOk, fileName;
+        int sensorId = 0;
+
+        switch (type){
+            case "temp":
+                sensorId = 453;
+                fileName = "tempsensorchart";
+                break;
+            case "air":
+                sensorId = 1587;
+                fileName = "airsensorchart";
+                break;
+            case "wind":
+                sensorId = 1785;
+                fileName = "windsensorchart";
+                break;
+            default:
+                return "No such sensor!";
         }
 
-        return type + " sensor turned on!";
-    }
-    protected String removeSensors(String type) throws ConcurrentModificationException {
-        for (String k:sensors.keySet()){
-            if (k.equals(type)){
-                sensors.remove(type);
+        outWriter.println("request " + sensorId);
+        if (inReader.readLine().equals("ok")) {
+            picture = (BufferedImage) inputStream.readObject();
+            if (inReader.readLine().equals("ok")){
+                 return saveImageToDisk(picture, fileName);
+            } else {
+                return "Error receiving picture! Please try again a bit later!";
             }
+        } else {
+            return "Error receiving picture! Please try again a bit later!";
         }
-        return type + " sensor turned off!";
-    }*/
+    }
+
+    private String saveImageToDisk(BufferedImage image, String fileName) throws IOException {
+        File imageFile = new File(System.getProperty("user.home") + "/" + fileName);
+        ImageIO.write(image,"jpg", imageFile);
+        return imageFile.getAbsolutePath();
+    }
 }
 

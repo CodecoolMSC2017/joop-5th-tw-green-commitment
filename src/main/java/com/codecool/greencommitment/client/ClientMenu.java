@@ -70,6 +70,7 @@ public class ClientMenu {
                     handleTransferQuestion();
                     break;
                 case "6":
+                    requestChart();
                     break;
                 case "7":
                     client.logOut();
@@ -123,6 +124,36 @@ public class ClientMenu {
             System.out.println("\nTransfer going on in the background!");
         } else {
             System.out.println("\nNo transfers!");
+        }
+    }
+
+    private void requestChart(){
+        String msg;
+        System.out.println("Choose the sensor for which you wish to get the chart!");
+        System.out.println("(1) Temperature sensor");
+        System.out.println("(2) Air pressure sensor");
+        System.out.println("(3) Wind speed sensor");
+        line = cmdScan.nextLine();
+
+        try {
+            switch (line) {
+                case "1":
+                    msg = client.getChartFromServer("temp");
+                    System.out.println(msg);
+                    break;
+                case "2":
+                    msg = client.getChartFromServer("air");
+                    System.out.println(msg);
+                    break;
+                case "3":
+                    msg = client.getChartFromServer("wind");
+                    System.out.println(msg);
+                    break;
+                default:
+                    System.out.println("No such choice!");
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            System.out.println("That went wrong....");
         }
     }
 }
