@@ -11,8 +11,7 @@ public class ClientScene extends Scene {
     private GCWindow window;
     private FlowPane pane;
 
-    private Button startDataStreamButton;
-    private Button stopDataStreamButton;
+    private Button startDataStreamButton, stopDataStreamButton;
 
     public ClientScene(Parent root, double width, double height, GCWindow window) {
         super(root, width, height);
