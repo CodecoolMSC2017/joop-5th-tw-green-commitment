@@ -26,15 +26,13 @@ public class ClientMenu {
         } catch (IOException e) {
             System.out.println("ID file couldn't be written or read in. Please do something about that! :) ");
         }
-        try {
             start();
-        } catch (IOException e) {
-            System.out.println("Couldn't send logout signal :(");
-            System.exit(1);
-        }
     }
 
-    private void start() throws IOException {
+    private void start() {
+
+        client.dataTransfer.start();
+
         while(true) {
             System.out.println("\nWelcome to the Client!");
             System.out.println("----------------------");
@@ -51,13 +49,13 @@ public class ClientMenu {
 
             switch (line) {
                 case "1":
-                    handleTempSens();
+                    handleSensors("TemperatureSensor");
                     break;
                 case "2":
-                    handleAirSens();
+                    handleSensors("AirPressureSensor");
                     break;
                 case "3":
-                    handleWindSens();
+                    handleSensors("WindSpeedSensor");
                     break;
                 case "4":
                     if (client.isTransferring()){
@@ -65,7 +63,6 @@ public class ClientMenu {
                         System.out.println("\nData transfer turned off!");
                     } else {
                         client.setIsTransferring(true);
-                        client.dataTransfer.start();
                         System.out.println("\nData transfer turned on!");
                     }
                     break;
@@ -84,16 +81,41 @@ public class ClientMenu {
         }
     }
 
-    private void handleTempSens(){
-
-    }
-
-    private void handleAirSens(){
-
-    }
-
-    private void handleWindSens(){
-
+    private void handleSensors(String sensorClass){
+        for (Sensor s:client.getSensors()){
+            switch (sensorClass){
+                case "TemperatureSensor":
+                    if (s instanceof TemperatureSensor) {
+                        s.startStopSensor();
+                        if (s.isStarted()){
+                            System.out.println(s.getName() + " turned on!");
+                        } else {
+                            System.out.println(s.getName() + " turned off!");
+                        }
+                    }
+                    break;
+                case "AirPressureSensor":
+                    if (s instanceof AirPressureSensor) {
+                        s.startStopSensor();
+                        if (s.isStarted()){
+                            System.out.println(s.getName() + " turned on!");
+                        } else {
+                            System.out.println(s.getName() + " turned off!");
+                        }
+                    }
+                    break;
+                case "WindSpeedSensor":
+                    if (s instanceof WindSpeedSensor) {
+                        s.startStopSensor();
+                        if (s.isStarted()){
+                            System.out.println(s.getName() + " turned on!");
+                        } else {
+                            System.out.println(s.getName() + " turned off!");
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     private void handleTransferQuestion(){
