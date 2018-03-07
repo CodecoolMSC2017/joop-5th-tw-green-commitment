@@ -20,6 +20,10 @@ public class GCWindow extends Application {
     Server server;
     Client client;
 
+    public void startWindow() {
+        launch();
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -54,6 +58,7 @@ public class GCWindow extends Application {
 
     public void setClient(int port, String ip) throws IOException {
         client = new Client(port, ip);
+        client.start();
     }
 
 
@@ -94,5 +99,6 @@ public class GCWindow extends Application {
             server.exit();
         }
         // if(client != null) { }
+        System.exit(0);
     }
 }
