@@ -19,7 +19,7 @@ public class Main {
             new ClientMenu(Integer.valueOf(args[0]), args[1]);
         }
         else {
-            System.out.println("Usage: <port> to start server, <port> <server> to start client");
+            System.out.println("Usage: no arguments to start GUI,  <port> to start server, <port> <server> to start client");
         }
     }
 }
