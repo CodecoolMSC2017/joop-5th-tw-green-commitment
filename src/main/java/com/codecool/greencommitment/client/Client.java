@@ -111,17 +111,19 @@ public class Client {
 
     public Thread dataTransfer = new Thread(){
         public void run() {
-            while(isTransferring){
-                try {
-                    sendData();
-                    TimeUnit.SECONDS.sleep(dataSendInterval);
-                } catch (InterruptedException ie) {
-                    ie.printStackTrace();
-                } catch (IOException | NullPointerException ioe) {
-                    System.out.println("Couldn't send data to server! Something wrong on that side! Exiting!");
-                    System.exit(1);
-                } catch (ConcurrentModificationException cme){
-                    System.out.println("Try again please!");
+            while (true) {
+                if (isTransferring) {
+                    try {
+                        sendData();
+                        TimeUnit.SECONDS.sleep(dataSendInterval);
+                    } catch (InterruptedException ie) {
+                        ie.printStackTrace();
+                    } catch (IOException | NullPointerException ioe) {
+                        System.out.println("Couldn't send data to server! Something wrong on that side! Exiting!");
+                        System.exit(1);
+                    } catch (ConcurrentModificationException cme) {
+                        System.out.println("Try again please!");
+                    }
                 }
             }
         }
@@ -129,12 +131,14 @@ public class Client {
 
     private String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
         for (Sensor s:sensors){
-            Document doc = s.readData();
-            outWriter.println("measurement");
-            if (inReader.readLine().equals("ok")) {
-                outputStream.writeObject(doc);
-                if (inReader.readLine().equals("error")){
-                    return "Server data handling error. Please restart the client!";
+            if (s.isStarted()){
+                Document doc = s.readData();
+                outWriter.println("measurement");
+                if (inReader.readLine().equals("ok")) {
+                    outputStream.writeObject(doc);
+                    if (inReader.readLine().equals("error")){
+                        return "Server data handling error. Please restart the client!";
+                    }
                 }
             }
         }
