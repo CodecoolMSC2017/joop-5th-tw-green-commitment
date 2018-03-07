@@ -39,6 +39,7 @@ public class GCWindow extends Application {
     // Method(s)
     public boolean setServer(int port) {
         server = new Server(port);
+        new Thread(()-> server.start()).start();
         return true;
     }
 
