@@ -77,4 +77,9 @@ public class GCWindow extends Application {
                 break;
         }
     }
+
+    @Override
+    public void stop() {
+        server.exit();
+    }
 }
