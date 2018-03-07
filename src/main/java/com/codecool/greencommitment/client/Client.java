@@ -163,6 +163,7 @@ public class Client {
 
     public String getChartFromServer(String type) throws IOException, ClassNotFoundException {
         BufferedImage picture;
+        byte[] imageInBytes;
         String transferOk, fileName;
         int sensorId = 0;
 
@@ -185,7 +186,8 @@ public class Client {
 
         outWriter.println("request " + sensorId);
         if (inReader.readLine().equals("ok")) {
-            picture = (BufferedImage) inputStream.readObject();
+            imageInBytes = inputStream.readAllBytes();
+            picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
             if (inReader.readLine().equals("ok")){
                  return saveImageToDisk(picture, fileName);
             } else {
