@@ -1,14 +1,19 @@
 package com.codecool.greencommitment.client;
 
+import org.w3c.dom.Document;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private String clientId;
     private Socket socket;
     private List<Sensor> sensors;
+    private int dataSendInterval = 5;
 
+    private boolean isTransferring;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private BufferedReader inReader;
@@ -38,8 +43,21 @@ public class Client {
 
     // Method(s)
 
+    // Getters and setters
     public List<Sensor> getSensors() {
         return sensors;
+    }
+
+    public void setDataSendInterval(int dataSendInterval) {
+        this.dataSendInterval = dataSendInterval;
+    }
+
+    public boolean isTransferring() {
+        return isTransferring;
+    }
+
+    public void setIsTransferring(boolean transferring) {
+        isTransferring = transferring;
     }
 
     //Login handling starts here
@@ -91,8 +109,26 @@ public class Client {
         return "Logged out!";
     }
 
-    /*protected String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
-        for (Sensor s:sensors.values()){
+    public Thread dataTransfer = new Thread(){
+        public void run() {
+            while(isTransferring){
+                try {
+                    sendData();
+                    TimeUnit.SECONDS.sleep(dataSendInterval);
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
+                } catch (IOException | NullPointerException ioe) {
+                    System.out.println("Couldn't send data to server! Something wrong on that side! Exiting!");
+                    System.exit(1);
+                } catch (ConcurrentModificationException cme){
+                    System.out.println("Try again please!");
+                }
+            }
+        }
+    };
+
+    private String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
+        for (Sensor s:sensors){
             Document doc = s.readData();
             outWriter.println("measurement");
             if (inReader.readLine().equals("ok")) {
@@ -103,7 +139,7 @@ public class Client {
             }
         }
         return "ok";
-    }*/
+    }
 
     /*protected String addSensors(String type) throws ConcurrentModificationException {
         if (type.equals("Temperature")){
