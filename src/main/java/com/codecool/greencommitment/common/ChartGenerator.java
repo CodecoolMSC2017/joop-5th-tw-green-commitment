@@ -32,7 +32,7 @@ public class ChartGenerator {
         for (Element measurement : measurements) {
             String value = measurement.getAttribute("value");
             String time = measurement.getAttribute("time");
-            line_chart_dataset.addValue(Integer.parseInt(value), "measurement", time);
+            line_chart_dataset.addValue(Float.valueOf(value), "measurement", time);
         }
         System.out.println(3);
         JFreeChart lineChartObject = ChartFactory.createLineChart(
