@@ -20,14 +20,17 @@ public class ServerProtocol implements Runnable {
     private int clientId;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data;
     private Logger logger;
+    private List<Integer> loggedInClients;
 
     public ServerProtocol(
             Socket clientSocket,
             HashMap<Integer, HashMap<Integer, List<Element>>> data,
-            Logger logger) {
+            Logger logger,
+            List<Integer> loggedInClients) {
         this.clientSocket = clientSocket;
         this.data = data;
         this.logger = logger;
+        this.loggedInClients = loggedInClients;
     }
 
     public void run() {
@@ -53,6 +56,7 @@ public class ServerProtocol implements Runnable {
                 in = inReader.readLine();
                 if (in == null) {
                     logger.log("Server", "Client " + clientId + " disconnected");
+                    loggedInClients.remove(clientId);
                     return;
                 }
                 switch (in) {
@@ -64,7 +68,7 @@ public class ServerProtocol implements Runnable {
                         break;
                     case "logout":
                         logger.log("Server", "Client " + clientId + " logged out");
-                        outWriter.println(in);
+                        loggedInClients.remove(clientId);
                         return;
                 }
             } catch (IOException | NullPointerException e) {
@@ -72,6 +76,10 @@ public class ServerProtocol implements Runnable {
                 return;
             }
         }
+    }
+
+    private boolean alreadyLoggedIn() {
+        return loggedInClients.contains(clientId);
     }
 
     private void identify() throws NumberFormatException {
@@ -84,12 +92,17 @@ public class ServerProtocol implements Runnable {
                 return;
             }
             clientId = id;
+            if (alreadyLoggedIn()) {
+                outWriter.println("error");
+                throw new NumberFormatException();
+            }
             if (!data.containsKey(id)) {
                 data.put(id, new HashMap<>());
                 logger.log("Server", "Unknown client " + clientId + " logged in");
             } else {
                 logger.log("Server", "Client " + clientId + " logged in");
             }
+            loggedInClients.add(clientId);
             outWriter.println("ok");
         } catch (IOException e) {
             e.printStackTrace();

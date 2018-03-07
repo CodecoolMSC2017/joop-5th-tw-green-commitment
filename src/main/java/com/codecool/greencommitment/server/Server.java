@@ -19,6 +19,7 @@ public class Server {
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
     private Logger logger;
+    private List<Integer> loggedInClients = new ArrayList<>();
     private ServerInputHandler serverInputHandler;
 
     public Server(int portNumber) {
@@ -60,7 +61,7 @@ public class Server {
         while (true) {
             try {
                 clientSocket = serverSocket.accept();
-                new Thread(new ServerProtocol(clientSocket, data, logger)).start();
+                new Thread(new ServerProtocol(clientSocket, data, logger, loggedInClients)).start();
             } catch (IOException e) {
                 logger.log("Server", "Could not establish connection");
             }
@@ -72,6 +73,9 @@ public class Server {
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
+        if (logger == null) {
+            logger = new Logger(null);
+        }
         logger.log("Server", "Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
