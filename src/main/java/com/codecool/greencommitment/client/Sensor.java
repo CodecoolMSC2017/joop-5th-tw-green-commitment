@@ -15,7 +15,11 @@ public abstract class Sensor{
     // Method(s)
     public abstract Document readData();
 
-    String startStopSensor() {
+    public String getName() {
+        return name;
+    }
+
+    public String startStopSensor() {
         if (isStarted) {
             isStarted = false;
             return name + " stopped!";
@@ -25,7 +29,7 @@ public abstract class Sensor{
         }
     }
 
-    String setInterval(int interval){
+    public String setInterval(int interval){
         this.interval = interval;
         return "New interval" + interval + "s set!";
     }
