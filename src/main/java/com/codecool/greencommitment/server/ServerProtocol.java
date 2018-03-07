@@ -4,6 +4,8 @@ import com.codecool.greencommitment.common.ChartGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.jfree.data.category.CategoryDataset;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -119,11 +121,11 @@ public class ServerProtocol implements Runnable {
 
     private void sendSensorData(String sensorId) {
         try {
-            File file = new ChartGenerator().lineChart(sensorId, data.get(clientId).get(Integer.parseInt(sensorId)));
+            BufferedImage image = new ChartGenerator().lineChart(sensorId, data.get(clientId).get(Integer.parseInt(sensorId)));
             outWriter.println("ok");
-            outputStream.writeObject(file);
+            outputStream.writeObject(image);
             outWriter.println("ok");
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.log("Server", "Error creating linechart");
             outWriter.println("error");
         }

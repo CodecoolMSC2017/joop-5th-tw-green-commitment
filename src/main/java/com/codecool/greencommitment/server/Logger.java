@@ -3,7 +3,6 @@ package com.codecool.greencommitment.server;
 import com.codecool.greencommitment.gui.scenes.ServerScene;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 
 public class Logger {
