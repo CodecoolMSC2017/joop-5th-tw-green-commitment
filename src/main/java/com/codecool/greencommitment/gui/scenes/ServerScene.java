@@ -13,7 +13,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ServerScene extends Scene {
     private GCWindow window;
@@ -89,10 +92,11 @@ public class ServerScene extends Scene {
 
     // Method(s)
     public void consoleWrite(String source, String text) {
-        consoleField.appendText(String.format("%s:%s:%s - (%s) >>> %s\n",
-                LocalDateTime.now().getHour(),
-                LocalDateTime.now().getMinute(),
-                LocalDateTime.now().getSecond(),
+        SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+
+        consoleField.appendText(String.format("%s - (%s) >>> %s\n",
+                date.format(calendar.getTime()),
                 source, text));
     }
 
