@@ -89,16 +89,18 @@ public class Server {
             Element client = (Element) clients.item(i);
             HashMap<Integer, List<Element>> innerMap = new HashMap<>();
             readData.put(client.getAttribute("id"), innerMap);
-            Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
-            NodeList sensors = sensorsE.getElementsByTagName("Sensor");
-            for (int j = 0; j < sensors.getLength(); j++) {
-                Element sensor = (Element) sensors.item(j);
-                List<Element> measurementsList = new ArrayList<>();
-                innerMap.put(Integer.parseInt(sensor.getAttribute("id")), measurementsList);
-                NodeList measurements = sensor.getElementsByTagName("measurement");
-                for (int k = 0; k < measurements.getLength(); k++) {
-                    Element measurement = (Element) measurements.item(k);
-                    measurementsList.add(measurement);
+            if (client.hasChildNodes()) {
+                Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
+                NodeList sensors = sensorsE.getElementsByTagName("Sensor");
+                for (int j = 0; j < sensors.getLength(); j++) {
+                    Element sensor = (Element) sensors.item(j);
+                    List<Element> measurementsList = new ArrayList<>();
+                    innerMap.put(Integer.parseInt(sensor.getAttribute("id")), measurementsList);
+                    NodeList measurements = sensor.getElementsByTagName("measurement");
+                    for (int k = 0; k < measurements.getLength(); k++) {
+                        Element measurement = (Element) measurements.item(k);
+                        measurementsList.add(measurement);
+                    }
                 }
             }
         }
