@@ -5,10 +5,7 @@ import org.w3c.dom.Element;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class ServerProtocol implements Runnable {
 
@@ -17,16 +14,16 @@ public class ServerProtocol implements Runnable {
     private ObjectOutputStream outputStream;
     private BufferedReader inReader;
     private PrintWriter outWriter;
-    private int clientId;
-    private HashMap<Integer, HashMap<Integer, List<Element>>> data;
+    private String clientId;
+    private HashMap<String, HashMap<Integer, List<Element>>> data;
     private Logger logger;
-    private List<Integer> loggedInClients;
+    private List<String> loggedInClients;
 
     public ServerProtocol(
             Socket clientSocket,
-            HashMap<Integer, HashMap<Integer, List<Element>>> data,
+            HashMap<String, HashMap<Integer, List<Element>>> data,
             Logger logger,
-            List<Integer> loggedInClients) {
+            List<String> loggedInClients) {
         this.clientSocket = clientSocket;
         this.data = data;
         this.logger = logger;
@@ -49,6 +46,12 @@ public class ServerProtocol implements Runnable {
         } catch (NumberFormatException e) {
             logger.log("Server", "Identification failed");
             return;
+        } catch (AlreadyLoggedInException e) {
+            logger.log("Server", "Client " + clientId + " is already logged in");
+            return;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         }
         String in;
         while (true) {
@@ -57,6 +60,7 @@ public class ServerProtocol implements Runnable {
                 if (in == null) {
                     logger.log("Server", "Client " + clientId + " disconnected");
                     loggedInClients.remove(clientId);
+                    System.out.println(Arrays.toString(loggedInClients.toArray()));
                     return;
                 }
                 switch (in) {
@@ -69,6 +73,7 @@ public class ServerProtocol implements Runnable {
                     case "logout":
                         logger.log("Server", "Client " + clientId + " logged out");
                         loggedInClients.remove(clientId);
+                        System.out.println(Arrays.toString(loggedInClients.toArray()));
                         return;
                 }
             } catch (IOException | NullPointerException e) {
@@ -82,41 +87,40 @@ public class ServerProtocol implements Runnable {
         return loggedInClients.contains(clientId);
     }
 
-    private void identify() throws NumberFormatException {
-        try {
-            String in = inReader.readLine();
-            int id = Integer.parseInt(in);
-            if (id == 0) {
-                clientId = generateNewId();
-                logger.log("Server", "New client " + clientId + " logged in");
-                return;
-            }
-            clientId = id;
-            if (alreadyLoggedIn()) {
-                outWriter.println("error");
-                throw new NumberFormatException();
-            }
-            if (!data.containsKey(id)) {
-                data.put(id, new HashMap<>());
-                logger.log("Server", "Unknown client " + clientId + " logged in");
-            } else {
-                logger.log("Server", "Client " + clientId + " logged in");
-            }
-            loggedInClients.add(clientId);
-            outWriter.println("ok");
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void identify() throws NumberFormatException, AlreadyLoggedInException, IOException {
+        String id = inReader.readLine();
+        if (id.equals("0")) {
+            clientId = generateNewId();
+            logger.log("Server", "New client " + clientId + " logged in");
+            System.out.println(Arrays.toString(loggedInClients.toArray()));
+            return;
         }
+        clientId = id;
+        if (alreadyLoggedIn()) {
+            outWriter.println("error");
+            System.out.println(Arrays.toString(loggedInClients.toArray()));
+            throw new AlreadyLoggedInException();
+        }
+        if (!data.containsKey(id)) {
+            data.put(id, new HashMap<>());
+            logger.log("Server", "Unknown client " + clientId + " logged in");
+        } else {
+            logger.log("Server", "Client " + clientId + " logged in");
+        }
+        System.out.println(Arrays.toString(loggedInClients.toArray()));
+        loggedInClients.add(String.valueOf(clientId));
+        outWriter.println("ok");
     }
 
-    private int generateNewId() {
+    private String generateNewId() {
         int id;
         do {
             id = new Random().nextInt((999 - 100) + 1) + 100;
-        } while (data.containsKey(id));
-        data.put(id, new HashMap<>());
+        } while (data.containsKey(String.valueOf(id)));
+        data.put(String.valueOf(id), new HashMap<>());
         outWriter.println(id);
-        return id;
+        loggedInClients.add(String.valueOf(clientId));
+        return String.valueOf(id);
     }
 
     private void sendData() {

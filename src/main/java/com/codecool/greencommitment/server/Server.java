@@ -16,10 +16,10 @@ import java.util.*;
 public class Server {
 
     private int portNumber;
-    private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
+    private HashMap<String, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
     private Logger logger;
-    private List<Integer> loggedInClients = new ArrayList<>();
+    private List<String> loggedInClients = new ArrayList<>();
     private ServerInputHandler serverInputHandler;
 
     public Server(int portNumber) {
@@ -80,7 +80,7 @@ public class Server {
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlFilePath);
 
-        HashMap<Integer, HashMap<Integer, List<Element>>> readData = new HashMap<>();
+        HashMap<String, HashMap<Integer, List<Element>>> readData = new HashMap<>();
 
 
         Element rootElement = (Element) doc.getElementsByTagName("Clients").item(0);
@@ -88,7 +88,7 @@ public class Server {
         for (int i = 0; i < clients.getLength(); i++) {
             Element client = (Element) clients.item(i);
             HashMap<Integer, List<Element>> innerMap = new HashMap<>();
-            readData.put(Integer.parseInt(client.getAttribute("id")), innerMap);
+            readData.put(client.getAttribute("id"), innerMap);
             Element sensorsE = (Element) client.getElementsByTagName("Sensors").item(0);
             NodeList sensors = sensorsE.getElementsByTagName("Sensor");
             for (int j = 0; j < sensors.getLength(); j++) {
