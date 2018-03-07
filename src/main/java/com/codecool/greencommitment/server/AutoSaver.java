@@ -11,8 +11,12 @@ public class AutoSaver extends ServerInputHandler {
 
     private int intervals;
 
-    public AutoSaver(HashMap<Integer, HashMap<Integer, List<Element>>> data, String xmlFilePath, int intervals) {
-        super(data, xmlFilePath);
+    public AutoSaver(
+            HashMap<Integer, HashMap<Integer, List<Element>>> data,
+            String xmlFilePath,
+            Logger logger,
+            int intervals) {
+        super(data, xmlFilePath, logger);
         this.intervals = intervals * 1000;
     }
 
@@ -24,16 +28,16 @@ public class AutoSaver extends ServerInputHandler {
                 save();
             }
         } catch (InterruptedException e) {
-            System.out.println("Autosaver stopped");
+            logger.log("Autosaver stopped");
         }
     }
 
     private void save() {
         try {
             saveXml();
-            System.out.println("Data autosaved");
+            logger.log("Data autosaved");
         } catch (TransformerException | ParserConfigurationException e) {
-            System.out.println("Autosaving failed");
+            logger.log("Autosaving failed");
         }
     }
 }

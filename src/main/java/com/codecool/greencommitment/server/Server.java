@@ -18,9 +18,8 @@ public class Server {
     private int portNumber;
     private HashMap<Integer, HashMap<Integer, List<Element>>> data = new HashMap<>();
     private String xmlFilePath = System.getProperty("user.home") + "/measurements.xml";
-    private ServerInputHandler serverInputHandler = new ServerInputHandler(data, xmlFilePath);
-    private Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, 20));
     private Logger logger;
+    private ServerInputHandler serverInputHandler;
 
     public Server(int portNumber) {
         this.portNumber = portNumber;
@@ -48,9 +47,14 @@ public class Server {
         } else {
             logger.log("Could not find previous results");
         }
+        ServerInputHandler serverInputHandler = new ServerInputHandler(data, xmlFilePath, logger);
+        this.serverInputHandler = serverInputHandler;
         Thread serverInputHandlerThread = new Thread(serverInputHandler);
         serverInputHandlerThread.start();
+
+        Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, logger, 20));
         autosaver.start();
+
         logger.log("Server started on port " + portNumber);
         Socket clientSocket;
         while (true) {

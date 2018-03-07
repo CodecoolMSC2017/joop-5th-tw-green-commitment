@@ -20,10 +20,15 @@ public class ServerInputHandler implements Runnable {
 
     private HashMap<Integer, HashMap<Integer, List<Element>>> data;
     private String xmlFilePath;
+    protected Logger logger;
 
-    public ServerInputHandler(HashMap<Integer, HashMap<Integer, List<Element>>> data, String xmlFilePath) {
+    public ServerInputHandler(
+            HashMap<Integer, HashMap<Integer, List<Element>>> data,
+            String xmlFilePath,
+            Logger logger) {
         this.data = data;
         this.xmlFilePath = xmlFilePath;
+        this.logger = logger;
     }
 
     public void run() {
@@ -39,7 +44,7 @@ public class ServerInputHandler implements Runnable {
                     case "exit":
                         exit();
                     default:
-                        System.out.println("Unknown command: " + command);
+                        logger.log("Unknown command: " + command);
                 }
             }
         }
@@ -53,9 +58,9 @@ public class ServerInputHandler implements Runnable {
     private void save() {
         try {
             saveXml();
-            System.out.println("Data saved");
+            logger.log("Data saved");
         } catch (TransformerException | ParserConfigurationException e) {
-            System.out.println("Saving failed");
+            logger.log("Saving failed");
         }
     }
 
