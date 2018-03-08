@@ -22,7 +22,7 @@ public class ServerInputHandler implements Runnable {
     private String xmlFilePath;
     protected Logger logger;
 
-    public ServerInputHandler(
+    ServerInputHandler(
             HashMap<String, HashMap<Integer, List<Element>>> data,
             String xmlFilePath,
             Logger logger) {

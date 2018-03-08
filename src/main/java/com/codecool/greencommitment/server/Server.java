@@ -55,13 +55,7 @@ public class Server {
         } else {
             logger.log("Server", "Could not find previous results");
         }
-        ServerInputHandler serverInputHandler = new ServerInputHandler(data, xmlFilePath, logger);
-        this.serverInputHandler = serverInputHandler;
-        Thread serverInputHandlerThread = new Thread(serverInputHandler);
-        serverInputHandlerThread.start();
-
-        Thread autosaver = new Thread(new AutoSaver(data, xmlFilePath, logger, 20));
-        autosaver.start();
+        initHelperThreads();
 
         logger.log("Server", "Server started on port " + portNumber);
         Socket clientSocket;
@@ -73,6 +67,13 @@ public class Server {
                 logger.log("Server", "Could not establish connection");
             }
         }
+    }
+
+    private void initHelperThreads() {
+        serverInputHandler = new ServerInputHandler(data, xmlFilePath, logger);
+        new Thread(serverInputHandler).start();
+
+        new Thread(new AutoSaver(data, xmlFilePath, logger, 20)).start();
     }
 
     public void exit() {
