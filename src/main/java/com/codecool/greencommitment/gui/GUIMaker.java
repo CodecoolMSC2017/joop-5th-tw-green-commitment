@@ -84,7 +84,6 @@ public class GUIMaker {
             while (true) {
                 try {
                     String imgPath = System.getProperty("user.home") + "/" + "" + sensor.getId() + "LineChart.jpeg";
-                    System.out.println(imgPath);
                     lineChartImg.setImage(new Image(new File(imgPath).toURI().toURL().toString()));
                     Thread.sleep(5000);
                 } catch (IOException | InterruptedException ignored) { }
