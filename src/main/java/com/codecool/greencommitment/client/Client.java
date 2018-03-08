@@ -52,6 +52,10 @@ public class Client {
     // Method(s)
 
     // Getters and setters
+    public String getClientId() {
+        return clientId;
+    }
+
     public int getPort() {
         return port;
     }
@@ -111,7 +115,7 @@ public class Client {
         return inReader.readLine();
     }
 
-    private String getId() throws IOException {
+    public String getId() throws IOException {
         String clientId = "0";
         outWriter.println(clientId);
         clientId = inReader.readLine();
