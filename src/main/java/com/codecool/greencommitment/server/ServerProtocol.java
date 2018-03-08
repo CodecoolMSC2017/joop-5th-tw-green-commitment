@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +75,12 @@ public class ServerProtocol implements Runnable {
     }
 
     private boolean readClientCommand() throws IOException {
-        String in = inReader.readLine();
+        String in;
+        try {
+            in = inReader.readLine();
+        } catch (SocketException e) {
+            in = null;
+        }
         if (in == null) {
             logger.log("Server", "Client " + clientId + " disconnected");
             loggedInClients.remove(clientId);
