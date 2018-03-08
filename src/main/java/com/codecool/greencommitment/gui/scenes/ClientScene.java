@@ -3,12 +3,14 @@ package com.codecool.greencommitment.gui.scenes;
 import com.codecool.greencommitment.client.Sensor;
 import com.codecool.greencommitment.gui.GCWindow;
 import com.codecool.greencommitment.gui.GUIMaker;
+import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.text.Text;
 
 public class ClientScene extends Scene {
     private GCWindow window;
@@ -29,9 +31,17 @@ public class ClientScene extends Scene {
         tabPane.setPrefWidth(1920);
         pane.getChildren().add(tabPane);
 
+        tabPane.getTabs().add(GUIMaker.makeDataTab(window));
+
+        // Options tab
         optionsTab = new Tab("Options");
         optionsTab.setClosable(false);
         tabPane.getTabs().add(optionsTab);
+
+
+        // Stop dataStream Button
+        FlowPane dataStreamContainer = new FlowPane();
+
         Button dataStreamButton = new Button("Stop");
 
         window.getClient().setIsTransferring(true);
@@ -46,8 +56,10 @@ public class ClientScene extends Scene {
                 dataStreamButton.setText("Start");
             }
         });
+        dataStreamContainer.getChildren().add(new Text("DataStream:"));
+        dataStreamContainer.getChildren().add(dataStreamButton);
 
-        optionsTab.setContent(dataStreamButton);
+        optionsTab.setContent(dataStreamContainer);
 
         initSensorTabs();
     }

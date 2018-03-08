@@ -14,9 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 
 public class ServerScene extends Scene {
     private GCWindow window;
@@ -51,6 +49,9 @@ public class ServerScene extends Scene {
         tabPane.setPrefWidth(1920);
 
 
+        tabPane.getTabs().add(GUIMaker.makeDataTab(window));
+
+
         // Console tab setup
         consoleTab = new Tab("Console");
         consoleTab.setClosable(false);
@@ -73,6 +74,9 @@ public class ServerScene extends Scene {
         tabPane.getTabs().add(resultsTab);
 
         resultImg = new ImageView("http://www.glowscript.org/docs/VPythonDocs/images/graph.png");
+        resultImg.setOnMouseClicked(event -> {
+            // Reread the image...
+        });
         resultsTab.setContent(resultImg);
 
 
