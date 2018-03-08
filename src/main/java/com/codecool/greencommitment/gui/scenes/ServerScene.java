@@ -23,10 +23,6 @@ public class ServerScene extends Scene {
 
     private TabPane tabPane;
 
-    // Clients tab
-    private Tab clientsTab;
-    private TextArea clientList;
-
     // Console tab
     private Tab consoleTab;
     private TextArea consoleField;
@@ -64,9 +60,7 @@ public class ServerScene extends Scene {
 
 
         // Clients tab setup
-        clientsTab = new Tab("Clients");
-        clientsTab.setClosable(false);
-        tabPane.getTabs().add(clientsTab);
+        tabPane.getTabs().add(GUIMaker.makeClientsTab(window.getServer()));
 
 
         // Results tab setup
