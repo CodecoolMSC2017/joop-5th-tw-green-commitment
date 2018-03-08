@@ -127,12 +127,13 @@ public class GUIMaker {
             dataPane.getChildren().add(endServerButton);
         } else {
             dataTab.setText("Client");
+            dataPane.getChildren().add(new Text("Client ID: " + window.getClient().getClientId()));
             dataPane.getChildren().add(new Text("Server IP: " + window.getClient().getHost()));
             dataPane.getChildren().add(new Text("Server Port: " + window.getClient().getPort()));
-            dataPane.getChildren().add(new Text("IP: " + localHost));
             Button endClientButton = new Button("Log out");
             endClientButton.setOnMouseClicked(event -> {
-                // Client logout
+                window.getClient().logOut();
+                System.exit(0);
             });
             dataPane.getChildren().add(endClientButton);
         }
@@ -151,14 +152,19 @@ public class GUIMaker {
         TextArea clients = new TextArea();
         clients.setEditable(false);
         clients.setPrefHeight(400);
-        Button refreshClientsButton = new Button("Refresh");
-        refreshClientsButton.setOnMouseClicked(event -> {
-            clients.setText("");
-            for (String client : server.getLoggedInClients()) {
-                clients.appendText("- Client " + client + "\n");
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    clients.setText("");
+                    for (String client : server.getLoggedInClients()) {
+                        clients.appendText("- Client " + String.valueOf(client) + "\n");
+                    }
+                    Thread.sleep(1000);
+                } catch (Exception ignored) {}
             }
-        });
-        clientsPane.getChildren().add(refreshClientsButton);
+        }).start();
+
         clientsPane.getChildren().add(clients);
 
         return clientsTab;
