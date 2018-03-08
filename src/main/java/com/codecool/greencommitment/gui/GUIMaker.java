@@ -19,6 +19,7 @@ import javafx.scene.text.Text;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
@@ -76,20 +77,19 @@ public class GUIMaker {
 
         // <ImageView>
         ImageView lineChartImg = new ImageView("http://www.glowscript.org/docs/VPythonDocs/images/graph.png");
-        lineChartImg.setPreserveRatio(true);
-        lineChartImg.prefWidth(1000);
+        lineChartImg.setFitWidth(520);
+        lineChartImg.setFitHeight(320);
 
-        Button refreshButton = new Button("Refresh");
-        refreshButton.setOnMouseClicked(event -> {
-            try {
-                String image = window.getClient().getChartFromServer(sensor.getName());
-                lineChartImg.setImage(new Image(new File(image).toURI().toURL().toString()));
-            } catch (Exception e) {
-                makeAlert("Image Error", "Image not found.");
+        new Thread(() -> {
+            while (true) {
+                try {
+                    String imgPath = System.getProperty("user.home") + "/" + "" + sensor.getId() + "LineChart.jpeg";
+                    System.out.println(imgPath);
+                    lineChartImg.setImage(new Image(new File(imgPath).toURI().toURL().toString()));
+                    Thread.sleep(5000);
+                } catch (IOException | InterruptedException ignored) { }
             }
-        });
-
-        sensorPane.getChildren().add(refreshButton);
+        }).start();
         sensorPane.getChildren().add(lineChartImg);
 
         return sensorTab;
