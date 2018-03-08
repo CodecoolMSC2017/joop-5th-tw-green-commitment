@@ -1,5 +1,6 @@
 package com.codecool.greencommitment.server;
 
+import com.codecool.greencommitment.common.UdpDiscovery;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,6 +40,9 @@ public class Server {
     }
 
     public void start() {
+
+        new Thread(new UdpDiscovery()).start();
+
         if (logger == null) {
             logger = new Logger(null);
         }

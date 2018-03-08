@@ -1,5 +1,6 @@
 package com.codecool.greencommitment.client;
 
+import com.codecool.greencommitment.common.UdpDiscovery;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,6 +25,7 @@ public class Client {
     private ObjectOutputStream outputStream;
     private BufferedReader inReader;
     private PrintWriter outWriter;
+    private UdpDiscovery discovery;
 
     // Constructor(s)
     public Client(int port, String host) throws IOException {
@@ -34,6 +36,19 @@ public class Client {
         sensors.add(new WindSpeedSensor());
         this.port = port;
         this.host = host;
+    }
+
+    public Client() throws IOException {
+        socket = new Socket(host, port);
+        sensors = new ArrayList<>();
+        sensors.add(new TemperatureSensor());
+        sensors.add(new AirPressureSensor());
+        sensors.add(new WindSpeedSensor());
+
+        discovery = new UdpDiscovery();
+        String[] serverData = discovery.runClient();
+        this.port = Integer.valueOf(serverData[1]);
+        this.host = serverData[0];
     }
 
     public String start() throws IOException {

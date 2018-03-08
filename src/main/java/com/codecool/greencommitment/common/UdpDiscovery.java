@@ -4,24 +4,25 @@ import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.TimeUnit;
 
-public class UdpDiscovery {
+public class UdpDiscovery implements Runnable{
 
-    public String runServer() {
+    //Run for server
+    public void run() {
 
         String hostname= "192.168.150.255";
         int port=1234;
         InetAddress host;
-        DatagramSocket socket;
-        DatagramPacket packet;
+        DatagramSocket socket = null;
+        DatagramPacket packet = null;
 
         try {
             host = InetAddress.getByName(hostname);
             socket = new DatagramSocket(null);
             packet = new DatagramPacket(new byte[1], 0, host, port);
         } catch (SocketException e) {
-            return "Could not create socket!";
+            e.printStackTrace();
         } catch (UnknownHostException e) {
-            return "Couldn't find host!";
+            e.printStackTrace();
         }
 
         while(true) {
@@ -29,9 +30,9 @@ public class UdpDiscovery {
                 socket.send(packet);
                 TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException e) {
-                return "Sleep interrupted!";
+                e.printStackTrace();
             } catch (IOException e) {
-                return "Error sending packet!";
+                e.printStackTrace();
             }
         }
     }
