@@ -12,13 +12,13 @@ import java.io.IOException;
 
 public class GCWindow extends Application {
 
-    Stage primaryStage;
+    private Stage primaryStage;
 
     private Scene scene;
     private StackPane root;
 
-    Server server;
-    Client client;
+    private Server server;
+    private Client client;
 
     public void startWindow() {
         launch();
@@ -56,8 +56,8 @@ public class GCWindow extends Application {
         server = new Server(port);
     }
 
-    public void setClient(int port, String ip) throws IOException {
-        client = new Client(port, ip);
+    public void setClient() throws IOException {
+        client = new Client();
         client.start();
     }
 
@@ -97,8 +97,12 @@ public class GCWindow extends Application {
     public void stop() {
         if (server != null) {
             server.exit();
+            server = null;
         }
-        // if(client != null) { }
-        System.exit(0);
+        if (client != null) {
+            client.logOut();
+            client = null;
+        }
+        changeScene(GCScene.Home);
     }
 }

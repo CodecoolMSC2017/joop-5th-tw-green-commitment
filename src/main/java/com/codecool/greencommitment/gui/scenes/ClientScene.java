@@ -42,18 +42,18 @@ public class ClientScene extends Scene {
         // Stop dataStream Button
         FlowPane dataStreamContainer = new FlowPane();
 
-        Button dataStreamButton = new Button("Stop");
+        Button dataStreamButton = new Button("on");
 
         window.getClient().setIsTransferring(true);
         window.getClient().dataTransfer.start();
 
         dataStreamButton.setOnMouseClicked(event -> {
-            if (dataStreamButton.getText().equals("Start")) {
+            if (dataStreamButton.getText().equals("off")) {
                 window.getClient().setIsTransferring(true);
-                dataStreamButton.setText("Stop");
+                dataStreamButton.setText("on");
             } else {
                 window.getClient().setIsTransferring(false);
-                dataStreamButton.setText("Start");
+                dataStreamButton.setText("off");
             }
         });
         dataStreamContainer.getChildren().add(new Text("DataStream:"));

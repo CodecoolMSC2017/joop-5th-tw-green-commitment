@@ -29,11 +29,18 @@ public class CreateServerScene extends Scene {
         pane.setVgap(10);
         setRoot(pane);
 
+        // Back Button
+        Button backButton = GUIMaker.makeBackButton();
+        backButton.setOnMouseClicked(event -> goToPreviousScene());
+        pane.getChildren().add(backButton);
+
+        // Port Field
         pane.getChildren().add(GUIMaker.makeText("Port"));
         serverPortField = new TextField();
         serverPortField.setText("7777");
         pane.getChildren().add(serverPortField);
 
+        // Create server Button
         createServerButton = GUIMaker.makeButton("Create server", 200, 50);
         createServerButton.setDefaultButton(true);
         createServerButton.setOnMouseClicked(event ->
@@ -48,5 +55,9 @@ public class CreateServerScene extends Scene {
         );
 
         pane.getChildren().add(createServerButton);
+    }
+
+    private void goToPreviousScene() {
+        window.changeScene(GCScene.Home);
     }
 }

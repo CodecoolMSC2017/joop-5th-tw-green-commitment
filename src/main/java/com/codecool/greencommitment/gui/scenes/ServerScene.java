@@ -19,7 +19,7 @@ public class ServerScene extends Scene {
     private GCWindow window;
     private FlowPane pane;
 
-
+    // Tabs
     private TabPane tabPane;
 
     // Console tab
@@ -35,11 +35,12 @@ public class ServerScene extends Scene {
         pane.setAlignment(Pos.TOP_LEFT);
         setRoot(pane);
 
+        // Tabs
         tabPane = new TabPane();
         tabPane.setMaxWidth(1920);
         tabPane.setPrefWidth(1920);
 
-
+        // Server tab setup
         tabPane.getTabs().add(GUIMaker.makeDataTab(window));
 
 
@@ -56,16 +57,9 @@ public class ServerScene extends Scene {
 
         // Clients tab setup
         tabPane.getTabs().add(GUIMaker.makeClientsTab(window.getServer()));
-
         pane.getChildren().add(tabPane);
 
-        try {
-            window.getServer().setLogger(new Logger(this));
-            new Thread(() -> window.getServer().start()).start();
-        } catch (Exception e) {
-            GUIMaker.makeAlert("Server error", "Could not create server.");
-            goToPreviousScene();
-        }
+        startServer();
 
         consoleWrite("Server", "Server started.");
     }
@@ -82,6 +76,16 @@ public class ServerScene extends Scene {
         consoleField.appendText(String.format("%s - (%s) >>> %s\n",
                 date.format(calendar.getTime()),
                 source, text));
+    }
+
+    private void startServer() {
+        try {
+            window.getServer().setLogger(new Logger(this));
+            new Thread(() -> window.getServer().start()).start();
+        } catch (Exception e) {
+            GUIMaker.makeAlert("Server error", "Could not create server.");
+            goToPreviousScene();
+        }
     }
 
     public void goToPreviousScene() {

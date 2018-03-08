@@ -16,9 +16,10 @@ public class CreateClientScene extends Scene {
     private GCWindow window;
     private FlowPane pane;
 
-    private TextField serverIpField, serverPortField;
-
     private Button serverConnectButton;
+
+    private Integer dot = 0;
+    private String[] loading = new String[]{"/", "_", "\\", "|"};
 
     public CreateClientScene(Parent root, double width, double height, GCWindow window) {
         super(root, width, height);
@@ -31,22 +32,19 @@ public class CreateClientScene extends Scene {
         pane.setVgap(10);
         setRoot(pane);
 
-        pane.getChildren().add(GUIMaker.makeText("IP"));
-        serverIpField = new TextField();
-        serverIpField.setText("127.0.0.1");
-        pane.getChildren().add(serverIpField);
+        // Back button
+        Button backButton = GUIMaker.makeBackButton();
+        backButton.setOnMouseClicked(event -> goToPreviousScene());
+        pane.getChildren().add(backButton);
 
-        pane.getChildren().add(GUIMaker.makeText("Port"));
-        serverPortField = new TextField();
-        serverPortField.setText("7777");
-        pane.getChildren().add(serverPortField);
-
+        // Connect Button
         serverConnectButton = GUIMaker.makeButton("Connect", 200, 50);
         serverConnectButton.setDefaultButton(true);
         serverConnectButton.setOnMouseClicked(event ->
                 {
                     try {
-                        window.setClient(Integer.parseInt(serverPortField.getText()), serverIpField.getText());
+                        serverConnectButton.setText("Connecting...");
+                        window.setClient();
                         window.changeScene(GCScene.Client);
                     } catch (IOException e) {
                         GUIMaker.makeAlert("Connect Error", "Could not connect to the server.");
@@ -55,5 +53,11 @@ public class CreateClientScene extends Scene {
         );
 
         pane.getChildren().add(serverConnectButton);
+    }
+
+
+    // Method(s)
+    private void goToPreviousScene() {
+        window.changeScene(GCScene.Home);
     }
 }

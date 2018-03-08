@@ -17,7 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -32,6 +31,21 @@ public class GUIMaker {
         button.setFont(Font.font("Monaco", 20));
 
         return button;
+    }
+
+    public static Button makeButton(String text) {
+        Button button = new Button(text);
+        button.setCursor(Cursor.CLOSED_HAND);
+        button.setFont(Font.font("Monaco", 20));
+
+        return button;
+    }
+
+    public static Button makeBackButton() {
+        Button backButton = new Button("« Back");
+        backButton.setCursor(Cursor.CLOSED_HAND);
+        backButton.setFont(Font.font("Monaco", 15));
+        return backButton;
     }
 
     public static Text makeText(String string) {
@@ -121,7 +135,7 @@ public class GUIMaker {
 
             Button endServerButton = new Button("End server");
             endServerButton.setOnMouseClicked(event -> {
-                window.getServer().exit();
+                window.stop();
             });
             dataPane.getChildren().add(endServerButton);
         } else {
@@ -131,8 +145,7 @@ public class GUIMaker {
             dataPane.getChildren().add(new Text("Server Port: " + window.getClient().getPort()));
             Button endClientButton = new Button("Log out");
             endClientButton.setOnMouseClicked(event -> {
-                window.getClient().logOut();
-                System.exit(0);
+                window.stop();
             });
             dataPane.getChildren().add(endClientButton);
         }
