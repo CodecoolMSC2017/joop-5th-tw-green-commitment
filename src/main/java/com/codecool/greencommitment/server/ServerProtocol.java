@@ -86,11 +86,6 @@ public class ServerProtocol implements Runnable {
             logger.log("Server", "Client " + clientId + " logged out");
             loggedInClients.remove(clientId);
             return true;
-        } else {
-            String[] splitInput = in.split(" ");
-            if ("request".equals(splitInput[0])) {
-                sendSensorData(splitInput[1]);
-            }
         }
         return false;
     }
@@ -171,11 +166,14 @@ public class ServerProtocol implements Runnable {
 
     private void processMeasurement(Document document) {
         Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
-        int id = Integer.parseInt(measurement.getAttribute("id"));
-        if (!data.get(clientId).containsKey(id)) {
-            data.get(clientId).put(id, new ArrayList<>());
+        String idAsString = measurement.getAttribute("id");
+        sendSensorData(idAsString);
+
+        int idAsInt = Integer.parseInt(idAsString);
+        if (!data.get(clientId).containsKey(idAsInt)) {
+            data.get(clientId).put(idAsInt, new ArrayList<>());
         }
-        logger.log("Client " + clientId, "Data sent from sensor " + id);
-        data.get(clientId).get(id).add(measurement);
+        logger.log("Client " + clientId, "Data sent from sensor " + idAsInt);
+        data.get(clientId).get(idAsInt).add(measurement);
     }
 }

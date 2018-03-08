@@ -89,6 +89,10 @@ public class Server {
         serverInputHandler.exit();
     }
 
+    public void save() {
+        serverInputHandler.save();
+    }
+
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {
         logger.log("Server", "Loading data... ");
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
