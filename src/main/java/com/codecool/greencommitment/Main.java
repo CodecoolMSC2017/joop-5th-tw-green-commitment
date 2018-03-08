@@ -15,9 +15,7 @@ public class Main {
             //new ClientMenu(7777, "192.168.150.4");
             //new ClientMenu(20000, "127.0.0.1");
             //new Server(20000).start();
-            //UdpDiscovery udp = new UdpDiscovery();
-            //udp.runServer();
-            //System.out.println(udp.runClient()[0] + "," + udp.runClient()[1]);
+            //new ClientMenu();
         }
         else if (args.length == 1) {
             new Server(Integer.valueOf(args[0])).start();

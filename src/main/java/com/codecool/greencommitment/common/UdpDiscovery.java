@@ -72,7 +72,7 @@ public class UdpDiscovery implements Runnable{
             System.out.println("Problem creating socket on port: " + DEFAULT_PORT );
         }
 
-        packet = new DatagramPacket (new byte[1], 1);
+        packet = new DatagramPacket (new byte[4], 4);
 
         try {
             socket.receive (packet);
