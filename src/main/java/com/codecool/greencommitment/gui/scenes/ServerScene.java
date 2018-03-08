@@ -27,10 +27,6 @@ public class ServerScene extends Scene {
     private Tab consoleTab;
     private TextArea consoleField;
 
-    // Results tab
-    private Tab resultsTab;
-    private ImageView resultImg;
-
     public ServerScene(Parent root, double width, double height, GCWindow window) {
         super(root, width, height);
         this.window = window;
@@ -61,19 +57,6 @@ public class ServerScene extends Scene {
 
         // Clients tab setup
         tabPane.getTabs().add(GUIMaker.makeClientsTab(window.getServer()));
-
-
-        // Results tab setup
-        resultsTab = new Tab("Results");
-        resultsTab.setClosable(false);
-        tabPane.getTabs().add(resultsTab);
-
-        resultImg = new ImageView("http://www.glowscript.org/docs/VPythonDocs/images/graph.png");
-        resultImg.setOnMouseClicked(event -> {
-            // Reread the image...
-        });
-        resultsTab.setContent(resultImg);
-
 
         pane.getChildren().add(tabPane);
 
