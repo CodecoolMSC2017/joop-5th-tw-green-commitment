@@ -16,7 +16,7 @@ public class Client {
     private String clientId;
     private Socket socket;
     private List<Sensor> sensors;
-    private int dataSendInterval = 5;
+    private int dataSendInterval = 4;
 
     private volatile boolean isTransferring;
     private ObjectInputStream inputStream;
@@ -148,7 +148,7 @@ public class Client {
         }
     };
 
-    private String sendData() throws IOException, ConcurrentModificationException, NullPointerException, ClassNotFoundException {
+    private String sendData() throws IOException, ConcurrentModificationException, NullPointerException, ClassNotFoundException, InterruptedException {
         for (Sensor s:sensors){
             if (s.isStarted()){
                 Document doc = s.readData();
@@ -185,13 +185,16 @@ public class Client {
             default:
                 return "No such sensor!";
         }
-
-        imageInBytes = (byte[]) inputStream.readObject();
-        picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
-        if (inReader.readLine().equals("ok")){
-             return saveImageToDisk(picture, fileName);
+        if (inReader.readLine().equals("ok")) {
+            imageInBytes = (byte[]) inputStream.readObject();
+            picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
+            if (inReader.readLine().equals("ok")) {
+                return saveImageToDisk(picture, fileName);
+            } else {
+                return "Error receiving picture! Please try again a bit later!";
+            }
         } else {
-            return "Error receiving picture! Please try again a bit later!";
+            return "Could not receive picture!";
         }
     }
 
