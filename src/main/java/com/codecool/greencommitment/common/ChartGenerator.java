@@ -19,11 +19,12 @@ public class ChartGenerator {
     private final String filePath = System.getProperty("user.home");
 
     public BufferedImage lineChart(
+            String clientId,
             String sensorID,
             List<Element> measurements) throws IOException {
         String title = "Measurements";
         String categoryLabel = "Time";
-        String valueLabel = "Test";
+        String valueLabel = "Value";
         int windowWidth = 640;
         int windowHeight = 480;
         DefaultCategoryDataset line_chart_dataset = new DefaultCategoryDataset();
@@ -41,7 +42,7 @@ public class ChartGenerator {
                 true,
                 true,
                 false);
-        File lineChart = new File(filePath + "/" + sensorID + "LineChart.jpeg");
+        File lineChart = new File(filePath + "/" + clientId + "_" + sensorID + "LineChart.jpeg");
         ChartUtilities.saveChartAsJPEG(lineChart, lineChartObject, windowWidth, windowHeight);
 
         return ImageIO.read(lineChart);

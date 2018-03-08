@@ -135,7 +135,7 @@ public class ServerProtocol implements Runnable {
 
     private void sendSensorData(String sensorId) {
         try {
-            BufferedImage image = new ChartGenerator().lineChart(sensorId, data.get(clientId).get(Integer.parseInt(sensorId)));
+            BufferedImage image = new ChartGenerator().lineChart(clientId, sensorId, data.get(clientId).get(Integer.parseInt(sensorId)));
             outWriter.println("ok");
 
             //Convert to byte array, then send the byte array as an object! (No EOF problem this way :D)
