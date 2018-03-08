@@ -139,21 +139,27 @@ public class Client {
                         System.exit(1);
                     } catch (ConcurrentModificationException cme) {
                         System.out.println("Try again please!");
+                    } catch (ClassNotFoundException e) {
+                        System.out.println("Casting error! Something is really screwed here! Exiting!");
+                        System.exit(1);
                     }
                 }
             }
         }
     };
 
-    private String sendData() throws IOException, ConcurrentModificationException, NullPointerException {
+    private String sendData() throws IOException, ConcurrentModificationException, NullPointerException, ClassNotFoundException {
         for (Sensor s:sensors){
             if (s.isStarted()){
                 Document doc = s.readData();
                 outWriter.println("measurement");
                 if (inReader.readLine().equals("ok")) {
                     outputStream.writeObject(doc);
-                    if (inReader.readLine().equals("error")){
+                    String ok = inReader.readLine();
+                    if (ok.equals("error")){
                         return "Server data handling error. Please restart the client!";
+                    } else if (ok.equals("ok")){
+                        getChartFromServer(s.name);
                     }
                 }
             }
@@ -161,38 +167,29 @@ public class Client {
         return "ok";
     }
 
-    public String getChartFromServer(String type) throws IOException, ClassNotFoundException {
+    public String getChartFromServer(String name) throws IOException, ClassNotFoundException {
         BufferedImage picture;
         byte[] imageInBytes;
-        String transferOk, fileName;
-        int sensorId = 0;
+        String fileName;
 
-        switch (type){
+        switch (name){
             case "Temperature sensor":
-                sensorId = 453;
                 fileName = "tempsensorchart";
                 break;
             case "Air pressure sensor":
-                sensorId = 1587;
                 fileName = "airsensorchart";
                 break;
             case "Windspeed sensor":
-                sensorId = 1785;
                 fileName = "windsensorchart";
                 break;
             default:
                 return "No such sensor!";
         }
 
-        outWriter.println("request " + sensorId);
-        if (inReader.readLine().equals("ok")) {
-            imageInBytes = (byte[]) inputStream.readObject();
-            picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
-            if (inReader.readLine().equals("ok")){
-                 return saveImageToDisk(picture, fileName);
-            } else {
-                return "Error receiving picture! Please try again a bit later!";
-            }
+        imageInBytes = (byte[]) inputStream.readObject();
+        picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
+        if (inReader.readLine().equals("ok")){
+             return saveImageToDisk(picture, fileName);
         } else {
             return "Error receiving picture! Please try again a bit later!";
         }
