@@ -63,8 +63,9 @@ public class ClientMenu {
             System.out.println("---------------------------------");
             System.out.println("(4) Start/Stop Data send");
             System.out.println("(5) Is it transferring?");
+            System.out.println("(6) Where can I find the measurement charts?");
             System.out.println("-----------------------------");
-            System.out.println("(6) Exit");
+            System.out.println("(7) Exit");
             line = cmdScan.nextLine();
 
             switch (line) {
@@ -90,6 +91,9 @@ public class ClientMenu {
                     handleTransferQuestion();
                     break;
                 case "6":
+                    showChartLocation();
+                    break;
+                case "7":
                     client.logOut();
                     System.exit(0);
                     break;
@@ -144,4 +148,7 @@ public class ClientMenu {
         }
     }
 
+    private void showChartLocation(){
+        System.out.println("\nCharts are in: " + System.getProperty("user.home"));
+    }
 }

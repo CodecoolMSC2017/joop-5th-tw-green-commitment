@@ -14,8 +14,6 @@ public class Main {
         else if (args[0].equals("gui")) {
             System.out.println("Starting GUI, please wait!");
             new GCWindow().startWindow();
-            //new Server(20000).start();
-            //new ClientMenu();
         }
         else if (args[0].equals("client")) {
             System.out.println("Searching for server! Please wait!");
