@@ -74,15 +74,15 @@ public class ServerScene extends Scene {
 
     // Method(s)
     public void consoleWrite(String source, String text) {
+        if(consoleField.getLength() > 100) {
+            consoleField.clear();
+            consoleField.appendText("(Server) >>> Cleared console...");
+        }
         SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
-        try {
-            consoleField.appendText(String.format("%s - (%s) >>> %s\n",
-                    date.format(calendar.getTime()),
-                    source, text));
-        } catch (Exception e) {
-            consoleField.clear();
-        }
+        consoleField.appendText(String.format("%s - (%s) >>> %s\n",
+                date.format(calendar.getTime()),
+                source, text));
     }
 
     public void goToPreviousScene() {
