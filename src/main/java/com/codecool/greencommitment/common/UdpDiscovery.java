@@ -19,6 +19,7 @@ public class UdpDiscovery implements Runnable{
     public void run() {
 
         String hostname= "192.168.150.255";
+        byte[] byteArrayServerPort;
         int port=1234;
         InetAddress host;
         DatagramSocket socket = null;
@@ -27,7 +28,8 @@ public class UdpDiscovery implements Runnable{
         try {
             host = InetAddress.getByName(hostname);
             socket = new DatagramSocket(null);
-            packet = new DatagramPacket(intToBytes(serverPort), 0, host, port);
+            byteArrayServerPort = intToBytes(serverPort);
+            packet = new DatagramPacket(byteArrayServerPort, byteArrayServerPort.length, host, port);
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {
@@ -46,10 +48,15 @@ public class UdpDiscovery implements Runnable{
         }
     }
 
-    public byte[] intToBytes(final int i) {
+    private byte[] intToBytes(final int i) {
         ByteBuffer bb = ByteBuffer.allocate(4);
         bb.putInt(i);
         return bb.array();
+    }
+
+    private int bytesToInt(byte[] bytes){
+        ByteBuffer wrappedBytes = ByteBuffer.wrap(bytes);
+        return wrappedBytes.getInt();
     }
 
 
@@ -69,8 +76,7 @@ public class UdpDiscovery implements Runnable{
 
         try {
             socket.receive (packet);
-            //System.out.println("Received from: " + packet.getAddress () + ":" + packet.getPort ());
-            serverData = new String[]{packet.getAddress().getHostAddress(), String.valueOf(packet.getPort())};
+            serverData = new String[]{packet.getAddress().getHostAddress(), String.valueOf(bytesToInt(packet.getData()))};
         } catch (IOException ie) {
             ie.printStackTrace();
         }
