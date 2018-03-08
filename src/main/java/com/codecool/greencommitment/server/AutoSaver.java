@@ -32,7 +32,8 @@ public class AutoSaver extends ServerInputHandler {
         }
     }
 
-    private void save() {
+    @Override
+    public void save() {
         try {
             saveXml();
             logger.log("Autosaver", "Data saved");

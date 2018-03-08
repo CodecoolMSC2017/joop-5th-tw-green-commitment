@@ -38,23 +38,8 @@ public class Server {
         if (logger == null) {
             logger = new Logger(null);
         }
-        ServerSocket serverSocket = null;
-        try {
-            serverSocket = new ServerSocket(portNumber);
-        } catch (IOException e) {
-            logger.log("Server", "Error creating server socket");
-            e.printStackTrace();
-            System.exit(1);
-        }
-        if (new File(xmlFilePath).exists()) {
-            try {
-                loadXml();
-            } catch (ParserConfigurationException | IOException | SAXException e) {
-                logger.log("Server", "Loading data failed");
-            }
-        } else {
-            logger.log("Server", "Could not find previous results");
-        }
+        ServerSocket serverSocket = createServerSocket();
+        loadData();
         initHelperThreads();
 
         logger.log("Server", "Server started on port " + portNumber);
@@ -69,6 +54,30 @@ public class Server {
         }
     }
 
+    private ServerSocket createServerSocket() {
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(portNumber);
+        } catch (IOException e) {
+            logger.log("Server", "Error creating server socket");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return serverSocket;
+    }
+
+    private void loadData() {
+        if (new File(xmlFilePath).exists()) {
+            try {
+                loadXml();
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                logger.log("Server", "Loading data failed");
+            }
+        } else {
+            logger.log("Server", "Could not find previous results");
+        }
+    }
+
     private void initHelperThreads() {
         serverInputHandler = new ServerInputHandler(data, xmlFilePath, logger);
         new Thread(serverInputHandler).start();
@@ -78,6 +87,10 @@ public class Server {
 
     public void exit() {
         serverInputHandler.exit();
+    }
+
+    public void save() {
+        serverInputHandler.save();
     }
 
     private void loadXml() throws ParserConfigurationException, IOException, SAXException {

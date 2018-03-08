@@ -55,7 +55,7 @@ public class ServerInputHandler implements Runnable {
         System.exit(0);
     }
 
-    private void save() {
+    public void save() {
         try {
             saveXml();
             logger.log("Server", "Data saved");
