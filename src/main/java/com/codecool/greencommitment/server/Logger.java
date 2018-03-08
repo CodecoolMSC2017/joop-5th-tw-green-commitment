@@ -9,9 +9,6 @@ public class Logger {
 
     private ServerScene serverScene;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    private Calendar calendar = Calendar.getInstance();
-
     public Logger(ServerScene serverScene) {
         this.serverScene = serverScene;
     }
@@ -24,6 +21,8 @@ public class Logger {
     }
 
     private void logToTerminal(String source, String message) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        Calendar calendar = Calendar.getInstance();
         System.out.println(String.format("%s - (%s) >>> %s",
                 dateFormat.format(calendar.getTime()),
                 source,
