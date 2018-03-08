@@ -118,7 +118,7 @@ public class GUIMaker {
 
             Button saveServerButton = new Button("Save data");
             saveServerButton.setOnMouseClicked(event -> {
-                window.getServer();
+                window.getServer().save();
             });
             dataPane.getChildren().add(saveServerButton);
 
