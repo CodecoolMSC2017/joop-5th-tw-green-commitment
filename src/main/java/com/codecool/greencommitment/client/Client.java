@@ -168,15 +168,15 @@ public class Client {
         int sensorId = 0;
 
         switch (type){
-            case "temp":
+            case "Temperature sensor":
                 sensorId = 453;
                 fileName = "tempsensorchart";
                 break;
-            case "air":
+            case "Air pressure sensor":
                 sensorId = 1587;
                 fileName = "airsensorchart";
                 break;
-            case "wind":
+            case "Windspeed sensor":
                 sensorId = 1785;
                 fileName = "windsensorchart";
                 break;

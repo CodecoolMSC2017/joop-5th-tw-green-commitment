@@ -138,15 +138,15 @@ public class ClientMenu {
         try {
             switch (line) {
                 case "1":
-                    msg = client.getChartFromServer("temp");
+                    msg = client.getChartFromServer("Temperature sensor");
                     System.out.println(msg);
                     break;
                 case "2":
-                    msg = client.getChartFromServer("air");
+                    msg = client.getChartFromServer("Air pressure sensor");
                     System.out.println(msg);
                     break;
                 case "3":
-                    msg = client.getChartFromServer("wind");
+                    msg = client.getChartFromServer("Windspeed sensor");
                     System.out.println(msg);
                     break;
                 default:
