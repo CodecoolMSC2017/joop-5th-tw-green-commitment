@@ -41,7 +41,7 @@ public class Server {
 
     public void start() {
 
-        new Thread(new UdpDiscovery()).start();
+        new Thread(new UdpDiscovery(portNumber)).start();
 
         if (logger == null) {
             logger = new Logger(null);

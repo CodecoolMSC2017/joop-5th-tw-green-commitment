@@ -29,6 +29,27 @@ public class ClientMenu {
             start();
     }
 
+    public ClientMenu() {
+        try {
+            this.client = new Client();
+        } catch (IOException e) {
+            System.out.println("Couldn't open server port! Please consult your server admin! :)");
+            System.exit(1);
+        }
+        try {
+            String msg = client.start();
+            if (msg.equals("Login unsuccessful!")){
+                System.out.println(msg + " Exiting!");
+                System.exit(1);
+            } else {
+                System.out.println(msg);
+            }
+        } catch (IOException e) {
+            System.out.println("ID file couldn't be written or read in. Please do something about that! :) ");
+        }
+        start();
+    }
+
     private void start() {
 
         client.dataTransfer.start();

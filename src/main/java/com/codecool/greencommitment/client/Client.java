@@ -39,16 +39,16 @@ public class Client {
     }
 
     public Client() throws IOException {
+        discovery = new UdpDiscovery();
+        String[] serverData = discovery.runClient();
+        this.port = Integer.valueOf(serverData[1]);
+        this.host = serverData[0];
+
         socket = new Socket(host, port);
         sensors = new ArrayList<>();
         sensors.add(new TemperatureSensor());
         sensors.add(new AirPressureSensor());
         sensors.add(new WindSpeedSensor());
-
-        discovery = new UdpDiscovery();
-        String[] serverData = discovery.runClient();
-        this.port = Integer.valueOf(serverData[1]);
-        this.host = serverData[0];
     }
 
     public String start() throws IOException {

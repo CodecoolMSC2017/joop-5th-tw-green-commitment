@@ -2,9 +2,18 @@ package com.codecool.greencommitment.common;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
 public class UdpDiscovery implements Runnable{
+    private int serverPort;
+
+    public UdpDiscovery() {
+    }
+
+    public UdpDiscovery(int serverPort) {
+        this.serverPort = serverPort;
+    }
 
     //Run for server
     public void run() {
@@ -18,7 +27,7 @@ public class UdpDiscovery implements Runnable{
         try {
             host = InetAddress.getByName(hostname);
             socket = new DatagramSocket(null);
-            packet = new DatagramPacket(new byte[1], 0, host, port);
+            packet = new DatagramPacket(intToBytes(serverPort), 0, host, port);
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {
@@ -35,6 +44,12 @@ public class UdpDiscovery implements Runnable{
                 e.printStackTrace();
             }
         }
+    }
+
+    public byte[] intToBytes(final int i) {
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.putInt(i);
+        return bb.array();
     }
 
 
@@ -55,7 +70,7 @@ public class UdpDiscovery implements Runnable{
         try {
             socket.receive (packet);
             //System.out.println("Received from: " + packet.getAddress () + ":" + packet.getPort ());
-            serverData = new String[]{String.valueOf(packet.getAddress()), String.valueOf(packet.getPort())};
+            serverData = new String[]{packet.getAddress().getHostAddress(), String.valueOf(packet.getPort())};
         } catch (IOException ie) {
             ie.printStackTrace();
         }
