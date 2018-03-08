@@ -66,7 +66,7 @@ public class ClientScene extends Scene {
 
     private void initSensorTabs() {
         for (Sensor sensor : window.getClient().getSensors()) {
-            tabPane.getTabs().add(GUIMaker.makeSensorTab(sensor));
+            tabPane.getTabs().add(GUIMaker.makeSensorTab(sensor, window));
         }
     }
 }
