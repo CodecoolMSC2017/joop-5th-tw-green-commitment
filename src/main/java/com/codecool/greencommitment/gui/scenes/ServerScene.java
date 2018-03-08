@@ -59,6 +59,7 @@ public class ServerScene extends Scene {
 
         consoleField = new TextArea();
         consoleField.setEditable(false);
+        consoleField.setPrefHeight(470);
         consoleTab.setContent(consoleField);
 
 

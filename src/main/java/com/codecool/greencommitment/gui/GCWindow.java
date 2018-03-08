@@ -34,7 +34,7 @@ public class GCWindow extends Application {
         this.primaryStage = primaryStage;
         changeScene(GCScene.Home);
         primaryStage.setWidth(640);
-        primaryStage.setHeight(360);
+        primaryStage.setHeight(500);
         primaryStage.setTitle("GC - Home");
         primaryStage.setScene(scene);
         primaryStage.show();

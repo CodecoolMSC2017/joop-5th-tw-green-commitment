@@ -34,6 +34,10 @@ public class Server {
         this.logger = logger;
     }
 
+    public List<String> getLoggedInClients() {
+        return loggedInClients;
+    }
+
     public void start() {
         if (logger == null) {
             logger = new Logger(null);

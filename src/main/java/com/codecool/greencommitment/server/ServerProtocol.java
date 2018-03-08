@@ -136,7 +136,7 @@ public class ServerProtocol implements Runnable {
             ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
             ImageIO.write(image, "jpg", byteArray);
             outputStream.writeObject(byteArray.toByteArray());
-
+            System.out.println("bytearray sent");
             outWriter.println("ok");
         } catch (IOException e) {
             logger.log("Server", "Error creating linechart");
@@ -159,7 +159,6 @@ public class ServerProtocol implements Runnable {
             outWriter.println("error");
             return;
         }
-        outWriter.println("ok");
 
         processMeasurement(document);
     }
@@ -175,6 +174,7 @@ public class ServerProtocol implements Runnable {
         logger.log("Client " + clientId, "Data sent from sensor " + idAsInt);
         data.get(clientId).get(idAsInt).add(measurement);
 
+        outWriter.println("ok");
         sendSensorData(idAsString);
     }
 }
