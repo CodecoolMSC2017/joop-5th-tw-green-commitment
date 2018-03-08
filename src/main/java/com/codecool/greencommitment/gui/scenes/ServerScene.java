@@ -76,10 +76,13 @@ public class ServerScene extends Scene {
     public void consoleWrite(String source, String text) {
         SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
-
-        consoleField.appendText(String.format("%s - (%s) >>> %s\n",
-                date.format(calendar.getTime()),
-                source, text));
+        try {
+            consoleField.appendText(String.format("%s - (%s) >>> %s\n",
+                    date.format(calendar.getTime()),
+                    source, text));
+        } catch (Exception e) {
+            consoleField.clear();
+        }
     }
 
     public void goToPreviousScene() {
