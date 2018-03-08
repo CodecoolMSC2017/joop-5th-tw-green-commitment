@@ -1,6 +1,7 @@
 package com.codecool.greencommitment.client;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -44,7 +45,7 @@ public class Client {
         if (handleLogin()) {
             return "Logged in to server!";
         } else {
-            return"Login unsuccessful!";
+            return "Login unsuccessful!";
         }
     }
 
@@ -118,14 +119,14 @@ public class Client {
     }
     // Login handling closes here
 
-    protected String logOut(){
+    public String logOut() {
         String logOut = "logout";
         outWriter.println(logOut);
         return "Logged out!";
     }
 
     //Data transfer starts here
-    public Thread dataTransfer = new Thread(){
+    public Thread dataTransfer = new Thread() {
         public void run() {
             while (true) {
                 if (isTransferring) {
@@ -149,17 +150,19 @@ public class Client {
     };
 
     private String sendData() throws IOException, ConcurrentModificationException, NullPointerException, ClassNotFoundException, InterruptedException {
-        for (Sensor s:sensors){
-            if (s.isStarted()){
+        for (Sensor s : sensors) {
+            if (s.isStarted()) {
                 Document doc = s.readData();
+                Element measurement = (Element) doc.getElementsByTagName("measurement").item(0);
+                String id = measurement.getAttribute("id");
                 outWriter.println("measurement");
                 if (inReader.readLine().equals("ok")) {
                     outputStream.writeObject(doc);
                     String ok = inReader.readLine();
-                    if (ok.equals("error")){
+                    if (ok.equals("error")) {
                         return "Server data handling error. Please restart the client!";
-                    } else if (ok.equals("ok")){
-                        getChartFromServer(s.name);
+                    } else if (ok.equals("ok")) {
+                        getChartFromServer(s.name, id);
                     }
                 }
             }
@@ -167,12 +170,12 @@ public class Client {
         return "ok";
     }
 
-    public String getChartFromServer(String name) throws IOException, ClassNotFoundException {
+    public String getChartFromServer(String name, String id) throws IOException, ClassNotFoundException {
         BufferedImage picture;
         byte[] imageInBytes;
         String fileName;
 
-        switch (name){
+        switch (name) {
             case "Temperature sensor":
                 fileName = "tempsensorchart";
                 break;
@@ -189,7 +192,7 @@ public class Client {
             imageInBytes = (byte[]) inputStream.readObject();
             picture = ImageIO.read(new ByteArrayInputStream(imageInBytes));
             if (inReader.readLine().equals("ok")) {
-                return saveImageToDisk(picture, fileName);
+                return saveImageToDisk(picture, fileName, id);
             } else {
                 return "Error receiving picture! Please try again a bit later!";
             }
@@ -198,9 +201,9 @@ public class Client {
         }
     }
 
-    private String saveImageToDisk(BufferedImage image, String fileName) throws IOException {
-        File imageFile = new File(System.getProperty("user.home") + "/" + fileName);
-        ImageIO.write(image,"jpg", imageFile);
+    private String saveImageToDisk(BufferedImage image, String fileName, String id) throws IOException {
+        File imageFile = new File(System.getProperty("user.home") + "/" + id + "LineChart.jpeg");
+        ImageIO.write(image, "jpg", imageFile);
         return imageFile.getAbsolutePath();
     }
 }

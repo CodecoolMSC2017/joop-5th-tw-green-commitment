@@ -129,7 +129,7 @@ public class ServerProtocol implements Runnable {
         } while (data.containsKey(String.valueOf(id)));
         data.put(String.valueOf(id), new HashMap<>());
         outWriter.println(id);
-        loggedInClients.add(String.valueOf(clientId));
+        loggedInClients.add(String.valueOf(id));
         return String.valueOf(id);
     }
 
