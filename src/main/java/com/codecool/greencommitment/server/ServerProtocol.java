@@ -167,7 +167,6 @@ public class ServerProtocol implements Runnable {
     private void processMeasurement(Document document) {
         Element measurement = (Element) document.getElementsByTagName("measurement").item(0);
         String idAsString = measurement.getAttribute("id");
-        sendSensorData(idAsString);
 
         int idAsInt = Integer.parseInt(idAsString);
         if (!data.get(clientId).containsKey(idAsInt)) {
@@ -175,5 +174,7 @@ public class ServerProtocol implements Runnable {
         }
         logger.log("Client " + clientId, "Data sent from sensor " + idAsInt);
         data.get(clientId).get(idAsInt).add(measurement);
+
+        sendSensorData(idAsString);
     }
 }
