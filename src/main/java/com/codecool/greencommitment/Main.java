@@ -14,6 +14,7 @@ public class Main {
             //new ClientMenu();
         }
         else if (args[0].equals("client")) {
+            System.out.println("Searching for server! Please wait!");
             new ClientMenu();
         }
         else if (args[0].equals("server")) {
