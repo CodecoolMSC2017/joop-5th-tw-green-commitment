@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 
 import java.text.SimpleDateFormat;
@@ -74,15 +73,15 @@ public class ServerScene extends Scene {
 
     // Method(s)
     public void consoleWrite(String source, String text) {
+        if(consoleField.getLength() > 10000) {
+            consoleField.clear();
+            consoleField.appendText("(Server) >>> Cleared console...\n");
+        }
         SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
-        try {
-            consoleField.appendText(String.format("%s - (%s) >>> %s\n",
-                    date.format(calendar.getTime()),
-                    source, text));
-        } catch (Exception e) {
-            consoleField.clear();
-        }
+        consoleField.appendText(String.format("%s - (%s) >>> %s\n",
+                date.format(calendar.getTime()),
+                source, text));
     }
 
     public void goToPreviousScene() {
