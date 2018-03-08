@@ -1,13 +1,14 @@
 package com.codecool.greencommitment.gui;
 
 import com.codecool.greencommitment.client.Sensor;
-import com.codecool.greencommitment.common.ChartGenerator;
+import com.codecool.greencommitment.server.Server;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -16,12 +17,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import java.awt.*;
 import java.io.File;
-import java.io.PrintWriter;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class GUIMaker {
@@ -132,7 +130,7 @@ public class GUIMaker {
             dataPane.getChildren().add(new Text("Server IP: " + window.getClient().getHost()));
             dataPane.getChildren().add(new Text("Server Port: " + window.getClient().getPort()));
             dataPane.getChildren().add(new Text("IP: " + localHost));
-            Button endClientButton = makeButton("Log out", 100, 50);
+            Button endClientButton = new Button("Log out");
             endClientButton.setOnMouseClicked(event -> {
                 // Client logout
             });
@@ -140,5 +138,29 @@ public class GUIMaker {
         }
 
         return dataTab;
+    }
+
+    public static Tab makeClientsTab(Server server) {
+        Tab clientsTab = new Tab("Clients");
+        clientsTab.setClosable(false);
+
+        FlowPane clientsPane = new FlowPane(Orientation.VERTICAL);
+        clientsPane.setPadding(new Insets(5, 5, 5, 5));
+        clientsTab.setContent(clientsPane);
+
+        TextArea clients = new TextArea();
+        clients.setEditable(false);
+        clients.setPrefHeight(400);
+        Button refreshClientsButton = new Button("Refresh");
+        refreshClientsButton.setOnMouseClicked(event -> {
+            clients.setText("");
+            for (String client : server.getLoggedInClients()) {
+                clients.appendText("- Client " + client + "\n");
+            }
+        });
+        clientsPane.getChildren().add(refreshClientsButton);
+        clientsPane.getChildren().add(clients);
+
+        return clientsTab;
     }
 }
