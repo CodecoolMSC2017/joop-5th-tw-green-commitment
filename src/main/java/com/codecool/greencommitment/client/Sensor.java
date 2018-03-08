@@ -18,6 +18,10 @@ public abstract class Sensor{
         return name;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public boolean isStarted() {
         return isStarted;
     }
