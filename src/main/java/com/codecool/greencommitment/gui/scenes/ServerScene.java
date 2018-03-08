@@ -73,9 +73,9 @@ public class ServerScene extends Scene {
 
     // Method(s)
     public void consoleWrite(String source, String text) {
-        if(consoleField.getLength() > 100) {
+        if(consoleField.getLength() > 10000) {
             consoleField.clear();
-            consoleField.appendText("(Server) >>> Cleared console...");
+            consoleField.appendText("(Server) >>> Cleared console...\n");
         }
         SimpleDateFormat date = new SimpleDateFormat("HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
