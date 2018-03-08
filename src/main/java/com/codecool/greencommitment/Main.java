@@ -7,7 +7,11 @@ import com.codecool.greencommitment.server.Server;
 public class Main {
 
     public static void main(String[] args) {
-        if (args[0].equals("gui")) {
+        if (args.length == 0){
+            System.out.println("Usage: <gui> to start gui (both Client and Server),  " +
+                    "<client> to start client, <server> <port> to start server");
+        }
+        else if (args[0].equals("gui")) {
             System.out.println("Starting GUI, please wait!");
             new GCWindow().startWindow();
             //new Server(20000).start();
