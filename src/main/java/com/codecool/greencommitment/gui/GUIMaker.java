@@ -75,7 +75,7 @@ public class GUIMaker {
         Pane dataStreamContainer = new FlowPane(Orientation.HORIZONTAL);
         dataStreamContainer.getChildren().add(new Text("DataStream: "));
 
-        Button dataStreamButton = new Button("Off");
+        Button dataStreamButton = new Button("On");
         dataStreamButton.setOnMouseClicked(event -> {
             sensor.startStopSensor();
             if (dataStreamButton.getText().equals("Off")) {
