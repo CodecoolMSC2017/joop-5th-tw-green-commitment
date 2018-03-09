@@ -94,7 +94,11 @@ public class ClientMenu {
                     showChartLocation();
                     break;
                 case "7":
-                    client.logOut();
+                    try {
+                        client.logOut();
+                    } catch (IOException e) {
+                        System.out.println("Couldn't close socket properly!");
+                    }
                     System.exit(0);
                     break;
                 default:

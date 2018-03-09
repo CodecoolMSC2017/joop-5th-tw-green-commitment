@@ -138,9 +138,10 @@ public class Client {
     }
     // Login handling closes here
 
-    public String logOut() {
+    public String logOut() throws IOException {
         String logOut = "logout";
         outWriter.println(logOut);
+        socket.close();
         return "Logged out!";
     }
 
