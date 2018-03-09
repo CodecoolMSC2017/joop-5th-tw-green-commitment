@@ -99,7 +99,11 @@ public class GCWindow extends Application {
             server.exit();
         }
         if (client != null) {
-            client.logOut();
+            try {
+                client.logOut();
+            } catch (IOException e) {
+                GUIMaker.makeAlert("Client error", "Couldn't close socket properly.");
+            }
         }
         System.exit(0);
     }
@@ -110,7 +114,11 @@ public class GCWindow extends Application {
             server = null;
         }
         if (client != null) {
-            client.logOut();
+            try {
+                client.logOut();
+            } catch (IOException e) {
+                GUIMaker.makeAlert("Client error", "Couldn't close socket properly.");
+            }
             client = null;
         }
         changeScene(GCScene.Home);
