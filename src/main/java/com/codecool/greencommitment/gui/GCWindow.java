@@ -97,6 +97,16 @@ public class GCWindow extends Application {
     public void stop() {
         if (server != null) {
             server.exit();
+        }
+        if (client != null) {
+            client.logOut();
+        }
+        System.exit(0);
+    }
+
+    public void logOut() {
+        if (server != null) {
+            server.exit();
             server = null;
         }
         if (client != null) {

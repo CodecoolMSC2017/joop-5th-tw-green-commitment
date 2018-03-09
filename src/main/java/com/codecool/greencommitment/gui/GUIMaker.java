@@ -135,7 +135,7 @@ public class GUIMaker {
 
             Button endServerButton = new Button("End server");
             endServerButton.setOnMouseClicked(event -> {
-                window.stop();
+                window.logOut();
             });
             dataPane.getChildren().add(endServerButton);
         } else {
@@ -145,7 +145,7 @@ public class GUIMaker {
             dataPane.getChildren().add(new Text("Server Port: " + window.getClient().getPort()));
             Button endClientButton = new Button("Log out");
             endClientButton.setOnMouseClicked(event -> {
-                window.stop();
+                window.logOut();
             });
             dataPane.getChildren().add(endClientButton);
         }
